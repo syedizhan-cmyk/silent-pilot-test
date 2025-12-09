@@ -6,35 +6,14 @@ export const generateAIImage = async (prompt, businessContext = '', style = 'pro
   try {
     console.log('🎨 Generating AI image with free services...');
     
-    // Enhance prompt with business context and style using Gemini
+    // Simple prompt enhancement without Gemini (to avoid API calls)
     let enhancedPrompt = prompt;
     if (businessContext) {
-      const geminiPrompt = `Create a concise, detailed image generation prompt.
-
-User request: ${prompt}
-Style: ${style}
-Business context: ${businessContext}
-
-Create ONE optimized prompt (max 300 characters) that:
-- Describes the main subject clearly
-- Includes the ${style} style
-- Incorporates relevant business context
-- Specifies composition and mood
-- Uses vivid, descriptive language
-
-Return ONLY the prompt, no explanations.`;
-
-      try {
-        enhancedPrompt = await generateContentWithGemini(geminiPrompt, 'image', businessContext);
-        enhancedPrompt = enhancedPrompt.trim().replace(/^["']|["']$/g, '').substring(0, 1000);
-        console.log('Enhanced prompt:', enhancedPrompt);
-      } catch (geminiError) {
-        console.log('Using original prompt');
-        enhancedPrompt = `${prompt}, ${style} style`;
-      }
+      enhancedPrompt = `${prompt}, ${style} style, ${businessContext}, professional, high quality`;
     } else {
-      enhancedPrompt = `${prompt}, ${style} style, high quality`;
+      enhancedPrompt = `${prompt}, ${style} style, professional, high quality, detailed`;
     }
+    console.log('Enhanced prompt:', enhancedPrompt);
     
     // Add negative prompt for better quality
     const negativePrompt = 'blurry, low quality, distorted, watermark, text, signature, ugly, duplicate, morbid, mutilated, extra fingers, poorly drawn hands, poorly drawn face';
