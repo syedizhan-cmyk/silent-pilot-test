@@ -521,3 +521,35 @@
     overflow-x: auto;
   }
 }
+
+/* Complete theme override for EmailCampaigns page */
+.email-campaigns-page,
+.email-campaigns-v2 {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.email-campaigns-page *,
+.email-campaigns-v2 * {
+  border-color: var(--border-color) !important;
+}
+
+.email-campaigns-page h1, .email-campaigns-page h2, .email-campaigns-page h3,
+.email-campaigns-v2 h1, .email-campaigns-v2 h2, .email-campaigns-v2 h3,
+.email-campaigns-page p, .email-campaigns-page span, .email-campaigns-page label,
+.email-campaigns-v2 p, .email-campaigns-v2 span, .email-campaigns-v2 label {
+  color: var(--text-primary) !important;
+}
+
+.email-campaigns-page .campaign-card, .email-campaigns-page .campaign-section,
+.email-campaigns-v2 .campaign-card, .email-campaigns-v2 .section-card {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}
+
+.email-campaigns-page input, .email-campaigns-page select, .email-campaigns-page textarea,
+.email-campaigns-v2 input, .email-campaigns-v2 select, .email-campaigns-v2 textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}

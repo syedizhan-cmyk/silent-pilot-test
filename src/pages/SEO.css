@@ -483,3 +483,29 @@
     display: none;
   }
 }
+
+/* Complete theme override for SEO page */
+.seo-page {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.seo-page * {
+  border-color: var(--border-color) !important;
+}
+
+.seo-page h1, .seo-page h2, .seo-page h3,
+.seo-page p, .seo-page span, .seo-page label {
+  color: var(--text-primary) !important;
+}
+
+.seo-page .seo-card, .seo-page .analysis-section {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}
+
+.seo-page input, .seo-page select, .seo-page textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}

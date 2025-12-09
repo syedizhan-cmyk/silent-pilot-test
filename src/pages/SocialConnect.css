@@ -251,3 +251,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Complete theme override for SocialConnect page */
+.social-connect-page,
+.social-connect-v2 {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.social-connect-page *,
+.social-connect-v2 * {
+  border-color: var(--border-color) !important;
+}
+
+.social-connect-page h1, .social-connect-page h2, .social-connect-page h3,
+.social-connect-v2 h1, .social-connect-v2 h2, .social-connect-v2 h3,
+.social-connect-page p, .social-connect-page span,
+.social-connect-v2 p, .social-connect-v2 span {
+  color: var(--text-primary) !important;
+}
+
+.social-connect-page .platform-card,
+.social-connect-v2 .platform-connect-card {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}

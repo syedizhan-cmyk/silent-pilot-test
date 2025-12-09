@@ -6,7 +6,7 @@
 
 .page-header h1 {
   font-size: 32px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .tab-button:hover {
-  background: #f8f9fa;
+  background: var(--card-background);
   border-color: #e0e0e0;
 }
 
@@ -103,7 +103,7 @@
 
 .media-form h3 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -162,7 +162,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px;
-  background: #f8f9fa;
+  background: var(--card-background);
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   cursor: pointer;
@@ -172,7 +172,7 @@
 
 .checkbox-label:hover {
   border-color: #667eea;
-  background: #f0f3ff;
+  background: var(--card-background);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -246,7 +246,7 @@
 
 .result-header h3 {
   font-size: 20px;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .btn-copy {
@@ -271,7 +271,7 @@
 }
 
 .content-preview {
-  background: #f8f9fa;
+  background: var(--card-background);
   padding: 20px;
   border-radius: 8px;
   border: 2px solid #e0e0e0;
@@ -325,7 +325,7 @@
 
 .image-info {
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--card-background);
   border: 2px solid #e0e0e0;
   border-radius: 8px;
 }
@@ -377,7 +377,7 @@
 }
 
 .prompt-section.errors {
-  background: #f8f9fa;
+  background: var(--card-background);
   border-color: #6c757d;
 }
 
@@ -455,13 +455,13 @@
 .optimized-prompt {
   margin: 20px 0;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--card-background);
   border: 2px solid #667eea;
   border-radius: 8px;
 }
 
 .optimized-prompt h4 {
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 15px;
   font-size: 18px;
 }
@@ -504,7 +504,7 @@
 }
 
 .api-instructions h4 {
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 15px;
   font-size: 18px;
 }
@@ -634,4 +634,47 @@
 
 .ai-media-studio label {
   color: var(--text-primary);
+}
+
+/* Complete theme override for AIMediaStudio page */
+.ai-media-studio {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.ai-media-studio * {
+  border-color: var(--border-color) !important;
+}
+
+.ai-media-studio h1,
+.ai-media-studio h2,
+.ai-media-studio h3,
+.ai-media-studio h4,
+.ai-media-studio p,
+.ai-media-studio span,
+.ai-media-studio label,
+.ai-media-studio div {
+  color: var(--text-primary) !important;
+}
+
+.ai-media-studio .studio-section,
+.ai-media-studio .generation-panel,
+.ai-media-studio .gallery-panel,
+.ai-media-studio .image-card,
+.ai-media-studio .control-panel {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}
+
+.ai-media-studio input,
+.ai-media-studio select,
+.ai-media-studio textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ai-media-studio input::placeholder,
+.ai-media-studio textarea::placeholder {
+  color: var(--text-secondary) !important;
 }

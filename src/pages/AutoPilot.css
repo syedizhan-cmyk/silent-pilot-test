@@ -11,7 +11,7 @@
 
 .setup-required h1 {
   font-size: 32px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 30px;
 }
 
@@ -144,7 +144,7 @@
 
 .info-section h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 25px;
 }
 
@@ -156,8 +156,8 @@
 
 .feature-card {
   padding: 25px;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   transition: all 0.3s;
 }
@@ -176,7 +176,7 @@
 
 .feature-card h3 {
   font-size: 18px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -198,7 +198,7 @@
 
 .settings-section h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 25px;
 }
 
@@ -218,7 +218,7 @@
   width: 100%;
   max-width: 400px;
   padding: 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
   background: var(--card-background);
@@ -236,8 +236,8 @@
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
@@ -245,7 +245,7 @@
 
 .checkbox-label-inline:hover {
   border-color: #667eea;
-  background: #f0f3ff;
+  background: var(--card-background);
 }
 
 .checkbox-label-inline input[type="checkbox"] {
@@ -261,15 +261,15 @@
   gap: 12px;
   cursor: pointer;
   padding: 15px;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   transition: all 0.3s;
 }
 
 .toggle-label:hover {
   border-color: #667eea;
-  background: #f0f3ff;
+  background: var(--card-background);
 }
 
 .toggle-label input[type="checkbox"] {
@@ -323,7 +323,7 @@
 
 .calendar-preview h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 25px;
 }
 
@@ -339,8 +339,8 @@
   gap: 20px;
   align-items: center;
   padding: 15px;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   transition: all 0.3s;
 }
@@ -438,4 +438,46 @@
 
 .autopilot-page label {
   color: var(--text-primary);
+}
+/* Complete theme override for AutoPilot page */
+.autopilot-page {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.autopilot-page * {
+  border-color: var(--border-color) !important;
+}
+
+.autopilot-page h1,
+.autopilot-page h2,
+.autopilot-page h3,
+.autopilot-page h4,
+.autopilot-page p,
+.autopilot-page span,
+.autopilot-page label,
+.autopilot-page div {
+  color: var(--text-primary) !important;
+}
+
+.autopilot-page .info-section,
+.autopilot-page .settings-section,
+.autopilot-page .feature-card,
+.autopilot-page .schedule-item,
+.autopilot-page .content-card {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}
+
+.autopilot-page input,
+.autopilot-page select,
+.autopilot-page textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.autopilot-page input::placeholder,
+.autopilot-page textarea::placeholder {
+  color: var(--text-secondary) !important;
 }

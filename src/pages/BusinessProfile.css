@@ -10,7 +10,7 @@
 
 .page-header h1 {
   font-size: 32px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -38,7 +38,7 @@
 
 .form-section h2 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 15px;
 }
 
@@ -130,7 +130,7 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 15px;
-  background: #f8f9fa;
+  background: var(--card-background);
   border-radius: 8px;
   border: 2px solid #e0e0e0;
 }
@@ -141,7 +141,7 @@
 
 .item-content h4 {
   font-size: 16px;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 5px;
 }
 
@@ -331,4 +331,45 @@
 
 .business-profile-page label {
   color: var(--text-primary);
+}
+
+/* Complete theme override for BusinessProfile page */
+.business-profile-page {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+.business-profile-page * {
+  border-color: var(--border-color) !important;
+}
+
+.business-profile-page h1,
+.business-profile-page h2,
+.business-profile-page h3,
+.business-profile-page h4,
+.business-profile-page p,
+.business-profile-page span,
+.business-profile-page label,
+.business-profile-page div {
+  color: var(--text-primary) !important;
+}
+
+.business-profile-page .profile-section,
+.business-profile-page .profile-card,
+.business-profile-page .form-group {
+  background: var(--card-background) !important;
+  color: var(--text-primary) !important;
+}
+
+.business-profile-page input,
+.business-profile-page select,
+.business-profile-page textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.business-profile-page input::placeholder,
+.business-profile-page textarea::placeholder {
+  color: var(--text-secondary) !important;
 }
