@@ -1,112 +1,216 @@
 import React, { useState, useEffect } from 'react';
-import { useSocialStore } from '../store/socialStore';
 import { useAuthStore } from '../store/authStore';
-import { initiateOAuth, quickConnectDemo, isOAuthConfigured } from '../lib/socialAuth';
-import SocialIcon from '../components/SocialIcon';
+import { useSocialStore } from '../store/socialStore';
 import './SocialConnect.css';
 
 function SocialConnect() {
   const user = useAuthStore((state) => state.user);
-  const { connectedAccounts, getConnectedAccounts, disconnectAccount, connectAccount, loading } = useSocialStore();
-  const [connectingPlatform, setConnectingPlatform] = useState(null);
-
-  const platforms = [
-    { id: 'facebook', name: 'Facebook', connected: false, accounts: 0, followers: '0' },
-    { id: 'instagram', name: 'Instagram', connected: false, accounts: 0, followers: '0' },
-    { id: 'twitter', name: 'Twitter', connected: false, accounts: 0, followers: '0' },
-    { id: 'linkedin', name: 'LinkedIn', connected: false, accounts: 0, followers: '0' }
-  ];
+  const { connectedAccounts, getConnectedAccounts, disconnectAccount } = useSocialStore();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user) {
       getConnectedAccounts(user.id);
     }
   }, [user, getConnectedAccounts]);
 
+  const socialPlatforms = [
+    {
+      id: 'twitter',
+      name: 'Twitter / X',
+      icon: '𝕏',
+      description: 'Post and schedule tweets',
+      color: '#1DA1F2',
+      comingSoon: false,
+    },
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      icon: '💼',
+      description: 'Share professional content',
+      color: '#0077B5',
+      comingSoon: false,
+    },
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: '👥',
+      description: 'Manage Facebook pages',
+      color: '#1877F2',
+      comingSoon: false,
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      icon: '📸',
+      description: 'Post photos and stories',
+      color: '#E4405F',
+      comingSoon: false,
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube',
+      icon: '📺',
+      description: 'Upload and manage videos',
+      color: '#FF0000',
+      comingSoon: true,
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      icon: '🎵',
+      description: 'Create short-form videos',
+      color: '#000000',
+      comingSoon: true,
+    },
+  ];
+
+  const isConnected = (platformId) => {
+    return connectedAccounts.some(acc => acc.platform === platformId);
+  };
+
   const handleConnect = async (platform) => {
-    setConnectingPlatform(platform);
-
-    try {
-      if (isOAuthConfigured(platform)) {
-        // Initiate OAuth - will redirect to provider
-        await initiateOAuth(platform, user?.id);
-        // User will be redirected, so we don't reset connectingPlatform here
-      } else {
-        // Demo mode
-        const demoAccount = quickConnectDemo(platform, user?.id);
-        const result = await connectAccount(user?.id, demoAccount);
-        
-        if (result.error) {
-          alert(`Connection failed: ${result.error}`);
-        }
-        
-        if (user?.id) {
-          await getConnectedAccounts(user.id);
-        }
-        setConnectingPlatform(null);
-      }
-    } catch (error) {
-      console.error('Connection error:', error);
-      alert(`Failed to connect ${platform}: ${error.message}`);
-      setConnectingPlatform(null);
+    if (platform.comingSoon) {
+      alert(`${platform.name} integration coming soon! 🚀`);
+      return;
     }
+
+    if (!user) {
+      alert('Please log in first');
+      return;
+    }
+
+    if (platform.id === 'linkedin') {
+      const authUrl = `https://qzvqnhbslecjjwakusva.functions.supabase.co/linkedin-auth?user_id=${encodeURIComponent(user.id)}`;
+      window.open(authUrl, '_blank');
+      return;
+    }
+
+    // For other platforms, keep simulated for now
+    alert(`OAuth integration for ${platform.name} will be added next.`);
   };
 
-  const handleManage = async (accountId, platformName) => {
+  const handleDisconnect = async (accountId, platformName) => {
     if (window.confirm(`Disconnect ${platformName}?`)) {
-      await disconnectAccount(accountId);
+      setLoading(true);
+      const { error } = await disconnectAccount(accountId);
+      if (error) {
+        alert(`Error: ${error}`);
+      } else {
+        alert(`${platformName} disconnected successfully`);
+      }
+      setLoading(false);
     }
   };
-
-  // Update platform connection status from real data
-  const updatedPlatforms = platforms.map(p => {
-    const accounts = connectedAccounts.filter(acc => acc.platform.toLowerCase() === p.id.toLowerCase());
-    return {
-      ...p,
-      connected: accounts.length > 0,
-      accounts: accounts.length
-    };
-  });
 
   return (
-    <div className="social-connect-v2">
+    <div className="social-connect-page">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Social Accounts</h1>
-          <p className="text-secondary mt-2">Connect and manage your social media accounts</p>
+          <h1>Social Media Accounts</h1>
+          <p>Connect your social media accounts to enable auto-posting</p>
         </div>
       </div>
 
-      <div className="platforms-grid">
-        {updatedPlatforms.map(platform => (
-          <div key={platform.id} className={`platform-connect-card ${platform.connected ? 'connected' : ''}`}>
-            <div className="platform-header">
-              <SocialIcon platform={platform.id} size={48} />
-              <div className="platform-info">
-                <h3>{platform.name}</h3>
-                <span className={`status ${platform.connected ? 'connected' : 'disconnected'}`}>
-                  {platform.connected ? '✓ Connected' : '○ Not Connected'}
-                </span>
-              </div>
-            </div>
-            {platform.connected && (
-              <div className="platform-stats">
-                <div className="stat"><span className="label">Accounts:</span> <span className="value">{platform.accounts}</span></div>
-                <div className="stat"><span className="label">Followers:</span> <span className="value">{platform.followers}</span></div>
-              </div>
-            )}
-            <button 
-              className={`btn ${platform.connected ? 'btn-secondary' : 'btn-primary'} full-width`}
-              onClick={() => platform.connected 
-                ? handleManage(connectedAccounts.find(a => a.platform.toLowerCase() === platform.id)?.id, platform.name)
-                : handleConnect(platform.id)
-              }
-              disabled={connectingPlatform === platform.id}
-            >
-              {connectingPlatform === platform.id ? 'Connecting...' : platform.connected ? 'Manage' : 'Connect'}
-            </button>
+      {/* Connected Accounts */}
+      {connectedAccounts.length > 0 && (
+        <div className="connected-section">
+          <h2>Connected Accounts</h2>
+          <div className="connected-grid">
+            {connectedAccounts.map((account) => {
+              const platform = socialPlatforms.find(p => p.id === account.platform);
+              return (
+                <div key={account.id} className="connected-card">
+                  <div className="connected-icon">{platform?.icon}</div>
+                  <div className="connected-info">
+                    <h3>{account.account_name || platform?.name}</h3>
+                    <p>Connected {new Date(account.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <button 
+                    className="disconnect-btn"
+                    onClick={() => handleDisconnect(account.id, platform?.name)}
+                    disabled={loading}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              );
+            })}
           </div>
-        ))}
+        </div>
+      )}
+
+      {/* Available Platforms */}
+      <div className="platforms-section">
+        <h2>Available Platforms</h2>
+        <div className="platforms-grid">
+          {socialPlatforms.map((platform) => {
+            const connected = isConnected(platform.id);
+            
+            return (
+              <div 
+                key={platform.id} 
+                className={`platform-card ${connected ? 'connected' : ''} ${platform.comingSoon ? 'coming-soon' : ''}`}
+              >
+                <div className="platform-icon" style={{ color: platform.color }}>
+                  {platform.icon}
+                </div>
+                <h3>{platform.name}</h3>
+                <p>{platform.description}</p>
+                
+                {platform.comingSoon ? (
+                  <div className="coming-soon-badge">Coming Soon</div>
+                ) : connected ? (
+                  <div className="connected-badge">✓ Connected</div>
+                ) : (
+                  <button 
+                    className="connect-btn"
+                    onClick={() => handleConnect(platform)}
+                    disabled={loading}
+                  >
+                    Connect
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Benefits */}
+      <div className="benefits-section">
+        <h2>Why Connect Social Accounts?</h2>
+        <div className="benefits-grid">
+          <div className="benefit-card">
+            <div className="benefit-icon">🚀</div>
+            <h3>Auto-Posting</h3>
+            <p>Schedule posts and let Silent Pilot publish them automatically</p>
+          </div>
+          <div className="benefit-card">
+            <div className="benefit-icon">📊</div>
+            <h3>Analytics</h3>
+            <p>Track performance across all platforms in one dashboard</p>
+          </div>
+          <div className="benefit-card">
+            <div className="benefit-icon">⏰</div>
+            <h3>Save Time</h3>
+            <p>Manage all social media from one place</p>
+          </div>
+          <div className="benefit-card">
+            <div className="benefit-icon">🎯</div>
+            <h3>Optimization</h3>
+            <p>AI suggests best times to post for maximum engagement</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Security Note */}
+      <div className="security-note">
+        <div className="security-icon">🔒</div>
+        <div>
+          <h4>Your accounts are secure</h4>
+          <p>We use industry-standard OAuth 2.0 authentication. Your passwords are never stored, and you can revoke access at any time.</p>
+        </div>
       </div>
     </div>
   );

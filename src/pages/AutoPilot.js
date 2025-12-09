@@ -1,364 +1,396 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { useContentStore } from '../store/contentStore';
+import { useBusinessProfileStore } from '../store/businessProfileStore';
+import { autoGenerateContentCalendar } from '../lib/autoContentGenerator';
 import { supabase } from '../lib/supabase';
 import './AutoPilot.css';
 
-function AutoPilot() {
-  const user = useAuthStore((state) => state.user);
-  const { posts, getPosts } = useContentStore();
-  const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState({ type: '', text: '' });
+export default function AutoPilot() {
+  const user = useAuthStore(state => state.user);
+  const { profile, loadProfile } = useBusinessProfileStore();
   
+  const [autoPilotEnabled, setAutoPilotEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [settings, setSettings] = useState({
     enabled: false,
-    frequency: 3, // posts per day
-    useBestTimes: true,
-    platforms: ['facebook', 'twitter', 'linkedin', 'instagram'],
-    postingTimes: ['09:00', '13:00', '18:00'],
-    contentTypes: ['promotional', 'educational', 'engagement'],
-    aiGenerate: true,
-    autoSchedule: true,
-    weekdaysOnly: false,
-    minInterval: 2 // hours between posts
+    contentWeeks: 4,
+    autoRegenerate: true,
+    autoPost: false,
+    platforms: ['linkedin', 'twitter', 'facebook', 'instagram'],
+    reviewRequired: true
+  });
+  
+  const [generatedContent, setGeneratedContent] = useState([]);
+  const [stats, setStats] = useState({
+    scheduled: 0,
+    published: 0,
+    pending: 0,
+    nextPostDate: null
   });
 
   useEffect(() => {
-    if (user?.id) {
-      loadSettings();
-      getPosts(user.id);
+    if (user) {
+      loadProfile(user.id);
+      loadAutoPilotSettings();
+      loadScheduledContent();
     }
   }, [user]);
 
-  const loadSettings = async () => {
+  const loadAutoPilotSettings = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('autopilot_settings')
         .select('*')
         .eq('user_id', user.id)
         .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
+      
       if (data) {
-        setSettings({ ...settings, ...data.settings });
-        setEnabled(data.settings.enabled || false);
+        setSettings(data.settings);
+        setAutoPilotEnabled(data.settings.enabled);
       }
     } catch (error) {
-      console.error('Error loading autopilot settings:', error);
-    } finally {
-      setLoading(false);
+      console.log('No autopilot settings yet');
     }
   };
 
-  const saveSettings = async () => {
+  const loadScheduledContent = async () => {
     try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('autopilot_settings')
-        .upsert({
-          user_id: user.id,
-          settings: settings,
-          updated_at: new Date().toISOString()
+      const { data } = await supabase
+        .from('scheduled_content')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('scheduled_for', { ascending: true });
+      
+      if (data) {
+        setGeneratedContent(data);
+        
+        const now = new Date();
+        const scheduled = data.filter(c => c.status === 'scheduled' && new Date(c.scheduled_for) > now).length;
+        const published = data.filter(c => c.status === 'published').length;
+        const pending = data.filter(c => c.status === 'pending').length;
+        const nextPost = data.find(c => c.status === 'scheduled' && new Date(c.scheduled_for) > now);
+        
+        setStats({
+          scheduled,
+          published,
+          pending,
+          nextPostDate: nextPost?.scheduled_for
         });
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: 'Settings saved successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: error.message });
-    } finally {
-      setLoading(false);
+      console.error('Error loading scheduled content:', error);
     }
   };
 
-  const toggleAutoPilot = async () => {
-    const newEnabled = !enabled;
-    setEnabled(newEnabled);
-    setSettings({ ...settings, enabled: newEnabled });
-    
-    // Auto-save when toggling
+  const handleEnableAutoPilot = async () => {
+    if (!profile) {
+      alert('Please complete your Business Profile first!');
+      return;
+    }
+
+    setGenerating(true);
     try {
+      // Generate content calendar
+      const result = await autoGenerateContentCalendar(profile, settings.contentWeeks);
+      
+      // Save to database
+      const contentToSave = result.content.map(c => ({
+        user_id: user.id,
+        content: c.content,
+        image_url: c.imageUrl,
+        platform: c.platform,
+        scheduled_for: c.scheduledFor,
+        status: 'scheduled',
+        type: c.type
+      }));
+      
+      const { error } = await supabase
+        .from('scheduled_content')
+        .insert(contentToSave);
+      
+      if (error) throw error;
+      
+      // Save settings
       await supabase
         .from('autopilot_settings')
         .upsert({
           user_id: user.id,
-          settings: { ...settings, enabled: newEnabled },
+          settings: { ...settings, enabled: true },
           updated_at: new Date().toISOString()
         });
-
-      setMessage({ 
-        type: 'success', 
-        text: newEnabled ? 'Auto-Pilot enabled!' : 'Auto-Pilot disabled!' 
-      });
+      
+      setAutoPilotEnabled(true);
+      setSettings({ ...settings, enabled: true });
+      
+      alert(`🎉 Auto-Pilot Activated!\n\n${result.scheduled} posts scheduled over ${settings.contentWeeks} weeks!`);
+      
+      loadScheduledContent();
     } catch (error) {
-      setMessage({ type: 'error', text: error.message });
+      console.error('Error enabling auto-pilot:', error);
+      alert('Error activating Auto-Pilot: ' + error.message);
+    }
+    setGenerating(false);
+  };
+
+  const handleDisableAutoPilot = async () => {
+    if (window.confirm('Are you sure you want to disable Auto-Pilot? Scheduled posts will remain but auto-regeneration will stop.')) {
+      await supabase
+        .from('autopilot_settings')
+        .upsert({
+          user_id: user.id,
+          settings: { ...settings, enabled: false },
+          updated_at: new Date().toISOString()
+        });
+      
+      setAutoPilotEnabled(false);
+      setSettings({ ...settings, enabled: false });
     }
   };
 
-  const handleSettingChange = (key, value) => {
-    setSettings({ ...settings, [key]: value });
-  };
-
-  const handlePlatformToggle = (platform) => {
-    const platforms = settings.platforms.includes(platform)
-      ? settings.platforms.filter(p => p !== platform)
-      : [...settings.platforms, platform];
-    setSettings({ ...settings, platforms });
-  };
-
-  const handleContentTypeToggle = (type) => {
-    const contentTypes = settings.contentTypes.includes(type)
-      ? settings.contentTypes.filter(t => t !== type)
-      : [...settings.contentTypes, type];
-    setSettings({ ...settings, contentTypes });
-  };
-
-  const scheduledCount = posts.filter(p => p.status === 'scheduled').length;
-  const publishedToday = posts.filter(p => {
-    const today = new Date().toDateString();
-    return p.published_at && new Date(p.published_at).toDateString() === today;
-  }).length;
-  const pendingCount = posts.filter(p => p.status === 'draft').length;
-
-  const getNextPostTime = () => {
-    const scheduled = posts
-      .filter(p => p.status === 'scheduled' && p.scheduled_for)
-      .sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for));
-    
-    if (scheduled.length > 0) {
-      const nextPost = new Date(scheduled[0].scheduled_for);
-      return nextPost.toLocaleString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        hour: 'numeric', 
-        minute: '2-digit' 
-      });
+  const handleRegenerateContent = async () => {
+    if (window.confirm(`Generate ${settings.contentWeeks} weeks of fresh content?`)) {
+      setGenerating(true);
+      try {
+        // Delete old scheduled content
+        await supabase
+          .from('scheduled_content')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('status', 'scheduled');
+        
+        // Generate new content
+        await handleEnableAutoPilot();
+      } catch (error) {
+        alert('Error regenerating content: ' + error.message);
+      }
+      setGenerating(false);
     }
-    return 'None scheduled';
   };
 
-  if (loading) {
+  if (!profile) {
     return (
-      <div className="autopilot-v2">
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading Auto-Pilot settings...</p>
+      <div className="autopilot-page">
+        <div className="setup-required">
+          <h1>🤖 Silent Pilot - Auto-Pilot Mode</h1>
+          <div className="warning-box">
+            <h2>⚠️ Business Profile Required</h2>
+            <p>To activate Auto-Pilot, please complete your Business Profile first.</p>
+            <p>The AI needs to understand your business to generate relevant content automatically.</p>
+            <a href="/dashboard/business-profile" className="btn-primary">
+              Complete Business Profile →
+            </a>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="autopilot-v2">
-      {message.text && (
-        <div className={`message-alert ${message.type}`}>
-          <span className="alert-icon">{message.type === 'success' ? '✅' : '⚠️'}</span>
-          <span>{message.text}</span>
-          <button className="alert-close" onClick={() => setMessage({ type: '', text: '' })}>×</button>
-        </div>
-      )}
-
+    <div className="autopilot-page">
       <div className="page-header">
-        <div>
-          <h1 className="text-4xl font-bold gradient-text">Auto-Pilot</h1>
-          <p className="text-secondary mt-2">Automate your content posting schedule</p>
+        <h1>🤖 Silent Pilot - Auto-Pilot Mode</h1>
+        <p>Fully automated content generation, scheduling, and posting</p>
+      </div>
+
+      {/* Status Card */}
+      <div className="status-card">
+        <div className="status-header">
+          <div className="status-indicator">
+            <div className={`indicator-dot ${autoPilotEnabled ? 'active' : 'inactive'}`}></div>
+            <h2>{autoPilotEnabled ? '✅ Auto-Pilot Active' : '⏸️ Auto-Pilot Inactive'}</h2>
+          </div>
+          
+          {autoPilotEnabled ? (
+            <button onClick={handleDisableAutoPilot} className="btn-danger">
+              Disable Auto-Pilot
+            </button>
+          ) : (
+            <button 
+              onClick={handleEnableAutoPilot} 
+              disabled={generating}
+              className="btn-primary btn-large"
+            >
+              {generating ? '⏳ Generating Content...' : '🚀 Activate Auto-Pilot'}
+            </button>
+          )}
         </div>
+
+        {autoPilotEnabled && (
+          <div className="status-stats">
+            <div className="stat-card">
+              <div className="stat-value">{stats.scheduled}</div>
+              <div className="stat-label">Scheduled Posts</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats.published}</div>
+              <div className="stat-label">Published</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats.pending}</div>
+              <div className="stat-label">Pending Review</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">
+                {stats.nextPostDate ? new Date(stats.nextPostDate).toLocaleDateString() : 'N/A'}
+              </div>
+              <div className="stat-label">Next Post</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* How It Works */}
+      <div className="info-section">
+        <h2>🎯 How Auto-Pilot Works</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <span className="feature-icon">🧠</span>
+            <h3>AI Analyzes Your Business</h3>
+            <p>Uses your business profile, industry, products, and target audience</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">📝</span>
+            <h3>Generates Content Ideas</h3>
+            <p>Creates {settings.contentWeeks} weeks of relevant, engaging content topics</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">✨</span>
+            <h3>Creates Full Posts</h3>
+            <p>Writes complete posts with captions, hashtags, and images</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">📅</span>
+            <h3>Smart Scheduling</h3>
+            <p>Posts at optimal times based on your industry and platforms</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">🔄</span>
+            <h3>Auto-Regenerates</h3>
+            <p>Automatically creates new content when schedule runs low</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">📊</span>
+            <h3>Tracks Performance</h3>
+            <p>Learns from engagement to improve future content</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Settings */}
+      <div className="settings-section">
+        <h2>⚙️ Auto-Pilot Settings</h2>
+        
+        <div className="setting-group">
+          <label>Content Generation Window</label>
+          <select 
+            value={settings.contentWeeks}
+            onChange={(e) => setSettings({ ...settings, contentWeeks: Number(e.target.value) })}
+          >
+            <option value="2">2 weeks (14 posts)</option>
+            <option value="4">4 weeks (28 posts)</option>
+            <option value="8">8 weeks (56 posts)</option>
+            <option value="12">12 weeks (84 posts)</option>
+          </select>
+        </div>
+
+        <div className="setting-group">
+          <label>Target Platforms</label>
+          <div className="checkbox-group-horizontal">
+            {['linkedin', 'twitter', 'facebook', 'instagram'].map(platform => (
+              <label key={platform} className="checkbox-label-inline">
+                <input
+                  type="checkbox"
+                  checked={settings.platforms.includes(platform)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSettings({ ...settings, platforms: [...settings.platforms, platform] });
+                    } else {
+                      setSettings({ ...settings, platforms: settings.platforms.filter(p => p !== platform) });
+                    }
+                  }}
+                />
+                {platform.charAt(0).toUpperCase() + platform.slice(1)}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="setting-group">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={settings.autoRegenerate}
+              onChange={(e) => setSettings({ ...settings, autoRegenerate: e.target.checked })}
+            />
+            <span>Auto-regenerate content when schedule runs low</span>
+          </label>
+        </div>
+
+        <div className="setting-group">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={settings.reviewRequired}
+              onChange={(e) => setSettings({ ...settings, reviewRequired: e.target.checked })}
+            />
+            <span>Require manual review before posting</span>
+          </label>
+        </div>
+
+        <div className="setting-group">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={settings.autoPost}
+              onChange={(e) => setSettings({ ...settings, autoPost: e.target.checked })}
+              disabled={settings.reviewRequired}
+            />
+            <span>Automatically post content (requires social account connection)</span>
+          </label>
+          {settings.reviewRequired && (
+            <p className="setting-note">Disable "Require manual review" to enable auto-posting</p>
+          )}
+        </div>
+
         <button 
-          className={`btn ${enabled ? 'btn-danger' : 'btn-primary'}`} 
-          onClick={toggleAutoPilot}
+          onClick={handleRegenerateContent}
+          disabled={generating || !autoPilotEnabled}
+          className="btn-secondary"
         >
-          {enabled ? '⏸️ Disable' : '🚀 Enable'} Auto-Pilot
+          {generating ? '⏳ Regenerating...' : '🔄 Regenerate All Content'}
         </button>
       </div>
 
-      {enabled && (
-        <div className="alert-info">
-          <span className="alert-icon">ℹ️</span>
-          <span>Auto-Pilot is active and will automatically create and schedule posts based on your settings.</span>
+      {/* Content Calendar Preview */}
+      {generatedContent.length > 0 && (
+        <div className="calendar-preview">
+          <h2>📅 Upcoming Content Schedule</h2>
+          <div className="content-list">
+            {generatedContent.slice(0, 10).map((content, index) => (
+              <div key={index} className="content-item">
+                <div className="content-date">
+                  {new Date(content.scheduled_for).toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+                <div className="content-platform">{content.platform}</div>
+                <div className="content-preview">
+                  {content.content.substring(0, 100)}...
+                </div>
+                <div className="content-status">{content.status}</div>
+              </div>
+            ))}
+          </div>
+          {generatedContent.length > 10 && (
+            <p className="view-more">+ {generatedContent.length - 10} more posts scheduled</p>
+          )}
         </div>
       )}
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{scheduledCount}</div>
-          <div className="stat-label">Scheduled</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{publishedToday}</div>
-          <div className="stat-label">Published Today</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{pendingCount}</div>
-          <div className="stat-label">Pending</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{getNextPostTime()}</div>
-          <div className="stat-label">Next Post</div>
-        </div>
-      </div>
-
-      <div className="section-card">
-        <h2 className="text-2xl font-semibold mb-6">Posting Schedule</h2>
-        <div className="settings-grid">
-          <div className="setting-item">
-            <div>
-              <strong>Post Frequency</strong>
-              <p className="text-secondary">How often to post per day</p>
-            </div>
-            <select 
-              className="input" 
-              value={settings.frequency}
-              onChange={(e) => handleSettingChange('frequency', parseInt(e.target.value))}
-            >
-              <option value="1">1 time per day</option>
-              <option value="2">2 times per day</option>
-              <option value="3">3 times per day</option>
-              <option value="4">4 times per day</option>
-              <option value="5">5 times per day</option>
-            </select>
-          </div>
-
-          <div className="setting-item">
-            <div>
-              <strong>Use Best Times</strong>
-              <p className="text-secondary">Post at optimal engagement times</p>
-            </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.useBestTimes}
-                onChange={(e) => handleSettingChange('useBestTimes', e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="setting-item">
-            <div>
-              <strong>AI Content Generation</strong>
-              <p className="text-secondary">Auto-generate post content with AI</p>
-            </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.aiGenerate}
-                onChange={(e) => handleSettingChange('aiGenerate', e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="setting-item">
-            <div>
-              <strong>Auto Schedule</strong>
-              <p className="text-secondary">Automatically schedule generated posts</p>
-            </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.autoSchedule}
-                onChange={(e) => handleSettingChange('autoSchedule', e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="setting-item">
-            <div>
-              <strong>Weekdays Only</strong>
-              <p className="text-secondary">Skip posting on weekends</p>
-            </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.weekdaysOnly}
-                onChange={(e) => handleSettingChange('weekdaysOnly', e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="setting-item">
-            <div>
-              <strong>Minimum Interval</strong>
-              <p className="text-secondary">Hours between posts</p>
-            </div>
-            <input 
-              type="number" 
-              className="input" 
-              min="1" 
-              max="24"
-              value={settings.minInterval}
-              onChange={(e) => handleSettingChange('minInterval', parseInt(e.target.value))}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="section-card">
-        <h2 className="text-2xl font-semibold mb-6">Target Platforms</h2>
-        <div className="platforms-grid">
-          {['facebook', 'twitter', 'linkedin', 'instagram', 'tiktok', 'youtube'].map(platform => (
-            <div 
-              key={platform} 
-              className={`platform-chip ${settings.platforms.includes(platform) ? 'active' : ''}`}
-              onClick={() => handlePlatformToggle(platform)}
-            >
-              <span className="platform-icon">{
-                platform === 'facebook' ? '📘' :
-                platform === 'twitter' ? '🐦' :
-                platform === 'linkedin' ? '💼' :
-                platform === 'instagram' ? '📷' :
-                platform === 'tiktok' ? '🎵' :
-                '📹'
-              }</span>
-              <span className="platform-name">{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
-              {settings.platforms.includes(platform) && <span className="check-icon">✓</span>}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="section-card">
-        <h2 className="text-2xl font-semibold mb-6">Content Types</h2>
-        <div className="content-types-grid">
-          {[
-            { id: 'promotional', label: 'Promotional', desc: 'Product launches, sales, offers' },
-            { id: 'educational', label: 'Educational', desc: 'Tips, how-tos, tutorials' },
-            { id: 'engagement', label: 'Engagement', desc: 'Questions, polls, discussions' },
-            { id: 'news', label: 'News', desc: 'Industry news, updates' },
-            { id: 'entertainment', label: 'Entertainment', desc: 'Fun content, memes' },
-            { id: 'testimonial', label: 'Testimonials', desc: 'Customer reviews, success stories' }
-          ].map(type => (
-            <div 
-              key={type.id}
-              className={`content-type-card ${settings.contentTypes.includes(type.id) ? 'active' : ''}`}
-              onClick={() => handleContentTypeToggle(type.id)}
-            >
-              <div className="type-header">
-                <strong>{type.label}</strong>
-                {settings.contentTypes.includes(type.id) && <span className="check-icon">✓</span>}
-              </div>
-              <p className="text-secondary">{type.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="action-buttons">
-        <button className="btn btn-secondary" onClick={() => loadSettings()}>
-          Reset Changes
-        </button>
-        <button className="btn btn-primary" onClick={saveSettings} disabled={loading}>
-          {loading ? 'Saving...' : 'Save Settings'}
-        </button>
-      </div>
     </div>
   );
 }
-
-export default AutoPilot;

@@ -1,210 +1,248 @@
 import React, { useState } from 'react';
-import { useAuthStore } from '../store/authStore';
 import './SEO.css';
 
 function SEO() {
-  const user = useAuthStore((state) => state.user);
-  const [url, setUrl] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
-  const [results, setResults] = useState(null);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [selectedSite, setSelectedSite] = useState('main');
 
-  const analyzeSEO = async () => {
-    if (!url.trim()) {
-      setMessage({ type: 'error', text: 'Please enter a URL' });
-      return;
-    }
-
-    setAnalyzing(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      // Fetch the page
-      const response = await fetch(url);
-      const html = await response.text();
-      
-      // Parse basic SEO metrics
-      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
-      const h1Match = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-      const imgCount = (html.match(/<img/gi) || []).length;
-      const imgAltCount = (html.match(/<img[^>]+alt=/gi) || []).length;
-      
-      // Calculate score
-      let score = 0;
-      const issues = [];
-      const recommendations = [];
-
-      if (titleMatch) {
-        score += 20;
-        if (titleMatch[1].length < 30 || titleMatch[1].length > 60) {
-          recommendations.push('Title length should be between 30-60 characters');
-        }
-      } else {
-        issues.push('Missing page title');
-      }
-
-      if (descMatch) {
-        score += 20;
-        if (descMatch[1].length < 120 || descMatch[1].length > 160) {
-          recommendations.push('Meta description should be 120-160 characters');
-        }
-      } else {
-        issues.push('Missing meta description');
-      }
-
-      if (h1Match) {
-        score += 15;
-      } else {
-        issues.push('Missing H1 tag');
-      }
-
-      if (url.startsWith('https://')) {
-        score += 15;
-      } else {
-        issues.push('Not using HTTPS');
-      }
-
-      if (imgCount > 0) {
-        const altPercentage = (imgAltCount / imgCount) * 100;
-        if (altPercentage > 80) {
-          score += 15;
-        } else {
-          issues.push(`Only ${altPercentage.toFixed(0)}% of images have alt text`);
-        }
-      }
-
-      score += 15; // Base score for having content
-
-      setResults({
-        score,
-        title: titleMatch ? titleMatch[1] : 'No title found',
-        description: descMatch ? descMatch[1] : 'No description found',
-        h1: h1Match ? h1Match[1] : 'No H1 found',
-        images: imgCount,
-        imagesWithAlt: imgAltCount,
-        https: url.startsWith('https://'),
-        issues,
-        recommendations
-      });
-
-      setMessage({ type: 'success', text: 'Analysis complete!' });
-    } catch (error) {
-      setMessage({ type: 'error', text: `Analysis failed: ${error.message}` });
-    } finally {
-      setAnalyzing(false);
-    }
+  const seoScore = {
+    overall: 78,
+    technical: 85,
+    content: 72,
+    backlinks: 68,
+    mobile: 92
   };
 
+  const keywords = [
+    { keyword: 'digital marketing automation', position: 3, volume: 12000, difficulty: 65, trend: 'up' },
+    { keyword: 'AI marketing tools', position: 7, volume: 8500, difficulty: 72, trend: 'up' },
+    { keyword: 'social media scheduler', position: 12, volume: 15000, difficulty: 58, trend: 'down' },
+    { keyword: 'email marketing platform', position: 5, volume: 22000, difficulty: 78, trend: 'stable' },
+    { keyword: 'content automation', position: 9, volume: 6700, difficulty: 54, trend: 'up' }
+  ];
+
+  const issues = [
+    { severity: 'high', type: 'Missing meta descriptions', count: 12, impact: 'High' },
+    { severity: 'medium', type: 'Slow page load time', count: 5, impact: 'Medium' },
+    { severity: 'low', type: 'Missing alt tags', count: 23, impact: 'Low' },
+    { severity: 'medium', type: 'Broken links', count: 8, impact: 'Medium' }
+  ];
+
+  const competitors = [
+    { name: 'Competitor A', domain: 'competitor-a.com', score: 82, keywords: 1547 },
+    { name: 'Competitor B', domain: 'competitor-b.com', score: 75, keywords: 1203 },
+    { name: 'Competitor C', domain: 'competitor-c.com', score: 71, keywords: 987 }
+  ];
+
   return (
-    <div className="seo-v2">
+    <div className="seo-page">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">SEO Tools</h1>
-          <p className="text-secondary mt-2">Analyze and optimize your content for search engines</p>
+          <h1>SEO Dashboard</h1>
+          <p>Monitor and improve your search engine optimization</p>
+        </div>
+        <button className="btn btn-primary">🔍 Run Full Audit</button>
+      </div>
+
+      {/* SEO Score Overview */}
+      <div className="seo-score-section">
+        <div className="score-main-card">
+          <h2>Overall SEO Score</h2>
+          <div className="score-circle">
+            <svg viewBox="0 0 200 200" className="score-svg">
+              <circle cx="100" cy="100" r="90" className="score-bg" />
+              <circle 
+                cx="100" 
+                cy="100" 
+                r="90" 
+                className="score-progress"
+                style={{
+                  strokeDasharray: `${seoScore.overall * 5.65} 565`,
+                  stroke: seoScore.overall >= 80 ? '#27C93F' : seoScore.overall >= 60 ? '#FFBD2E' : '#FF5F56'
+                }}
+              />
+            </svg>
+            <div className="score-value">{seoScore.overall}</div>
+          </div>
+          <div className="score-label">
+            {seoScore.overall >= 80 ? 'Excellent' : seoScore.overall >= 60 ? 'Good' : 'Needs Work'}
+          </div>
+        </div>
+
+        <div className="score-breakdown">
+          <div className="breakdown-item">
+            <div className="breakdown-label">
+              <span>⚙️ Technical SEO</span>
+              <span className="breakdown-score">{seoScore.technical}</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${seoScore.technical}%` }}></div>
+            </div>
+          </div>
+          <div className="breakdown-item">
+            <div className="breakdown-label">
+              <span>📝 Content Quality</span>
+              <span className="breakdown-score">{seoScore.content}</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${seoScore.content}%` }}></div>
+            </div>
+          </div>
+          <div className="breakdown-item">
+            <div className="breakdown-label">
+              <span>🔗 Backlinks</span>
+              <span className="breakdown-score">{seoScore.backlinks}</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${seoScore.backlinks}%` }}></div>
+            </div>
+          </div>
+          <div className="breakdown-item">
+            <div className="breakdown-label">
+              <span>📱 Mobile</span>
+              <span className="breakdown-score">{seoScore.mobile}</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${seoScore.mobile}%` }}></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {message.text && (
-        <div className={`message-alert ${message.type}`}>
-          <span className="alert-icon">{message.type === 'success' ? '✅' : '⚠️'}</span>
-          <span>{message.text}</span>
-          <button className="alert-close" onClick={() => setMessage({ type: '', text: '' })}>×</button>
+      {/* Keywords Tracking */}
+      <div className="seo-section">
+        <div className="section-header">
+          <h2>Keyword Rankings</h2>
+          <button className="btn btn-secondary">+ Add Keywords</button>
         </div>
-      )}
 
-      <div className="section-card">
-        <h2 className="text-2xl font-semibold mb-6">Analyze Website</h2>
-        <div className="url-input-section">
-          <input
-            type="url"
-            className="url-input"
-            placeholder="Enter website URL (e.g., https://example.com)"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          <button 
-            className="btn btn-primary"
-            onClick={analyzeSEO}
-            disabled={analyzing}
-          >
-            {analyzing ? '🔍 Analyzing...' : '🔍 Analyze'}
+        <div className="keywords-table">
+          <div className="table-header">
+            <div className="table-cell">Keyword</div>
+            <div className="table-cell">Position</div>
+            <div className="table-cell">Search Volume</div>
+            <div className="table-cell">Difficulty</div>
+            <div className="table-cell">Trend</div>
+          </div>
+          {keywords.map((kw, index) => (
+            <div key={index} className="table-row">
+              <div className="table-cell keyword-cell">
+                <span className="keyword-text">{kw.keyword}</span>
+              </div>
+              <div className="table-cell">
+                <span className={`position-badge ${kw.position <= 3 ? 'top' : kw.position <= 10 ? 'good' : 'moderate'}`}>
+                  #{kw.position}
+                </span>
+              </div>
+              <div className="table-cell">{kw.volume.toLocaleString()}/mo</div>
+              <div className="table-cell">
+                <span className={`difficulty-badge ${kw.difficulty >= 70 ? 'hard' : kw.difficulty >= 50 ? 'medium' : 'easy'}`}>
+                  {kw.difficulty}
+                </span>
+              </div>
+              <div className="table-cell">
+                <span className={`trend-indicator ${kw.trend}`}>
+                  {kw.trend === 'up' ? '📈' : kw.trend === 'down' ? '📉' : '➡️'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Issues & Recommendations */}
+      <div className="seo-section">
+        <div className="section-header">
+          <h2>Issues & Recommendations</h2>
+          <div className="issue-filters">
+            <button className="filter-btn active">All</button>
+            <button className="filter-btn">High</button>
+            <button className="filter-btn">Medium</button>
+            <button className="filter-btn">Low</button>
+          </div>
+        </div>
+
+        <div className="issues-grid">
+          {issues.map((issue, index) => (
+            <div key={index} className="issue-card">
+              <div className="issue-header">
+                <span className={`severity-badge ${issue.severity}`}>
+                  {issue.severity === 'high' ? '🔴' : issue.severity === 'medium' ? '🟡' : '🟢'}
+                  {issue.severity.toUpperCase()}
+                </span>
+                <span className="issue-count">{issue.count} issues</span>
+              </div>
+              <h4 className="issue-type">{issue.type}</h4>
+              <div className="issue-impact">Impact: {issue.impact}</div>
+              <button className="fix-btn">Fix Issues →</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Competitor Analysis */}
+      <div className="seo-section">
+        <div className="section-header">
+          <h2>Competitor Analysis</h2>
+          <button className="btn btn-secondary">+ Add Competitor</button>
+        </div>
+
+        <div className="competitors-grid">
+          {competitors.map((comp, index) => (
+            <div key={index} className="competitor-card">
+              <div className="competitor-header">
+                <h4>{comp.name}</h4>
+                <span className="competitor-domain">{comp.domain}</span>
+              </div>
+              <div className="competitor-stats">
+                <div className="competitor-stat">
+                  <div className="competitor-stat-label">SEO Score</div>
+                  <div className="competitor-stat-value">{comp.score}</div>
+                </div>
+                <div className="competitor-stat">
+                  <div className="competitor-stat-label">Keywords</div>
+                  <div className="competitor-stat-value">{comp.keywords.toLocaleString()}</div>
+                </div>
+              </div>
+              <button className="analyze-btn">Analyze</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Tools */}
+      <div className="quick-tools">
+        <h3>SEO Tools</h3>
+        <div className="tools-grid">
+          <button className="tool-card">
+            <span className="tool-icon">🔍</span>
+            <div className="tool-info">
+              <div className="tool-name">Keyword Research</div>
+              <div className="tool-desc">Find new keywords</div>
+            </div>
+          </button>
+          <button className="tool-card">
+            <span className="tool-icon">📊</span>
+            <div className="tool-info">
+              <div className="tool-name">Site Audit</div>
+              <div className="tool-desc">Full technical audit</div>
+            </div>
+          </button>
+          <button className="tool-card">
+            <span className="tool-icon">🔗</span>
+            <div className="tool-info">
+              <div className="tool-name">Backlink Analysis</div>
+              <div className="tool-desc">Check backlinks</div>
+            </div>
+          </button>
+          <button className="tool-card">
+            <span className="tool-icon">📝</span>
+            <div className="tool-info">
+              <div className="tool-name">Content Optimizer</div>
+              <div className="tool-desc">Optimize content</div>
+            </div>
           </button>
         </div>
       </div>
-
-      {results && (
-        <>
-          <div className="seo-score">
-            <div className="score-circle" style={{
-              background: `conic-gradient(#10b981 ${results.score * 3.6}deg, #e5e7eb ${results.score * 3.6}deg)`
-            }}>
-              <div className="score-inner">
-                <div className="score-value">{results.score}</div>
-                <div className="score-label">SEO Score</div>
-              </div>
-            </div>
-            <div className="score-info">
-              <h3>Overall Rating: {results.score >= 80 ? 'Excellent' : results.score >= 60 ? 'Good' : 'Needs Improvement'}</h3>
-              <p>Your website has {results.issues.length} issues to fix</p>
-            </div>
-          </div>
-
-          <div className="section-card">
-            <h2 className="text-2xl font-semibold mb-6">Page Analysis</h2>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <strong>Title:</strong>
-                <p>{results.title}</p>
-              </div>
-              <div className="analysis-item">
-                <strong>Description:</strong>
-                <p>{results.description}</p>
-              </div>
-              <div className="analysis-item">
-                <strong>H1 Tag:</strong>
-                <p>{results.h1}</p>
-              </div>
-              <div className="analysis-item">
-                <strong>Images:</strong>
-                <p>{results.images} total, {results.imagesWithAlt} with alt text</p>
-              </div>
-              <div className="analysis-item">
-                <strong>HTTPS:</strong>
-                <p>{results.https ? '✅ Secure' : '❌ Not secure'}</p>
-              </div>
-            </div>
-          </div>
-
-          {results.issues.length > 0 && (
-            <div className="section-card">
-              <h2 className="text-2xl font-semibold mb-6">Issues Found</h2>
-              <div className="issues-list">
-                {results.issues.map((issue, i) => (
-                  <div key={i} className="issue-item error">
-                    <span className="issue-icon">❌</span>
-                    <span>{issue}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {results.recommendations.length > 0 && (
-            <div className="section-card">
-              <h2 className="text-2xl font-semibold mb-6">Recommendations</h2>
-              <div className="issues-list">
-                {results.recommendations.map((rec, i) => (
-                  <div key={i} className="issue-item warning">
-                    <span className="issue-icon">⚠️</span>
-                    <span>{rec}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
     </div>
   );
 }

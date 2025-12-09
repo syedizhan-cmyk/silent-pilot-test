@@ -1,150 +1,253 @@
-.social-connect-v2 {
+.social-connect-page {
   padding: 32px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.page-header {
-  margin-bottom: 32px;
+.connected-section,
+.platforms-section,
+.benefits-section {
+  margin-bottom: 48px;
 }
 
-.page-header h1 {
-  font-size: 32px;
+.connected-section h2,
+.platforms-section h2,
+.benefits-section h2 {
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin-bottom: 24px;
 }
 
-.page-header p {
-  font-size: 16px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.platforms-grid {
+.connected-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
 
-.platform-connect-card {
-  padding: 24px;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
+.connected-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(39, 201, 63, 0.1);
+  border: 1px solid rgba(39, 201, 63, 0.3);
   border-radius: 16px;
   transition: all 0.3s ease;
 }
 
-.platform-connect-card.connected {
-  border-color: #10b981;
+.connected-card:hover {
+  background: rgba(39, 201, 63, 0.15);
+  transform: translateY(-2px);
 }
 
-.platform-connect-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
-}
-
-.platform-header {
+.connected-icon {
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.platform-info h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
-}
-
-.status {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.status.connected {
-  color: #10b981;
-}
-
-.status.disconnected {
-  color: var(--text-tertiary);
-}
-
-.platform-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 16px;
-  background: var(--hover-bg);
+  justify-content: center;
+  font-size: 32px;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
-.stat {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
+.connected-info {
+  flex: 1;
 }
 
-.stat .label {
-  color: var(--text-secondary);
-}
-
-.stat .value {
-  color: var(--text-primary);
+.connected-info h3 {
+  font-size: 16px;
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.full-width {
-  width: 100%;
+.connected-info p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
+.disconnect-btn {
+  padding: 10px 20px;
+  background: rgba(255, 95, 86, 0.1);
+  border: 1px solid rgba(255, 95, 86, 0.3);
+  border-radius: 8px;
+  color: #FF5F56;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+.disconnect-btn:hover:not(:disabled) {
+  background: rgba(255, 95, 86, 0.2);
 }
 
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-}
-
-.btn-secondary {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: var(--primary-color);
-  background: var(--hover-bg);
-}
-
-.btn:disabled {
+.disconnect-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+.platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.platform-card {
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.platform-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(88, 101, 242, 0.3);
+  transform: translateY(-4px);
+}
+
+.platform-card.connected {
+  border-color: rgba(39, 201, 63, 0.5);
+  background: rgba(39, 201, 63, 0.05);
+}
+
+.platform-card.coming-soon {
+  opacity: 0.6;
+}
+
+.platform-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.platform-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.platform-card p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+}
+
+.connect-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #5865F2 0%, #FF73B3 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.connect-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.3);
+}
+
+.connect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.connected-badge {
+  padding: 10px;
+  background: rgba(39, 201, 63, 0.2);
+  border: 1px solid rgba(39, 201, 63, 0.4);
+  border-radius: 10px;
+  color: #27C93F;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.coming-soon-badge {
+  padding: 10px;
+  background: rgba(255, 189, 46, 0.2);
+  border: 1px solid rgba(255, 189, 46, 0.4);
+  border-radius: 10px;
+  color: #FFBD2E;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.benefit-card {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
+}
+
+.benefit-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.benefit-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.benefit-card p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+.security-note {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(88, 101, 242, 0.1);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 16px;
+  margin-top: 32px;
+}
+
+.security-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.security-note h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.security-note p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
-  .social-connect-v2 {
-    padding: 20px;
+  .social-connect-page {
+    padding: 16px;
   }
 
-  .platforms-grid {
+  .platforms-grid,
+  .benefits-grid {
     grid-template-columns: 1fr;
   }
 }
