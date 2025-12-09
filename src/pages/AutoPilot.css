@@ -38,7 +38,7 @@
 
 /* Status Card */
 .status-card {
-  background: white;
+  background: var(--card-background);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -135,7 +135,7 @@
 
 /* Info Section */
 .info-section {
-  background: white;
+  background: var(--card-background);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -182,14 +182,14 @@
 
 .feature-card p {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0;
 }
 
 /* Settings Section */
 .settings-section {
-  background: white;
+  background: var(--card-background);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -209,7 +209,7 @@
 .setting-group label {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 10px;
   font-size: 14px;
 }
@@ -221,8 +221,8 @@
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 14px;
-  background: white;
-  color: #333;
+  background: var(--card-background);
+  color: var(--text-primary);
 }
 
 .checkbox-group-horizontal {
@@ -281,19 +281,19 @@
 
 .toggle-label span {
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .setting-note {
   margin-top: 8px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
 .btn-secondary {
   padding: 12px 24px;
-  background: white;
+  background: var(--card-background);
   color: #667eea;
   border: 2px solid #667eea;
   border-radius: 8px;
@@ -315,7 +315,7 @@
 
 /* Calendar Preview */
 .calendar-preview {
-  background: white;
+  background: var(--card-background);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -347,7 +347,7 @@
 
 .content-item:hover {
   border-color: #667eea;
-  background: white;
+  background: var(--card-background);
 }
 
 .content-date {
@@ -369,7 +369,7 @@
 
 .content-preview {
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
@@ -421,4 +421,21 @@
   .status-stats {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+/* Theme support additions */
+.autopilot-page {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+.autopilot-page input,
+.autopilot-page select,
+.autopilot-page textarea {
+  background-color: var(--input-background);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.autopilot-page label {
+  color: var(--text-primary);
 }

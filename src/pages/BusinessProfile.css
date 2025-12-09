@@ -15,12 +15,12 @@
 }
 
 .page-header p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
 .profile-form {
-  background: white;
+  background: var(--card-background);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -43,7 +43,7 @@
 }
 
 .section-description {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
   margin-bottom: 20px;
 }
@@ -55,7 +55,7 @@
 .form-group label {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -71,8 +71,8 @@
   font-size: 14px;
   transition: border-color 0.3s;
   font-family: inherit;
-  background: white;
-  color: #333;
+  background: var(--card-background);
+  color: var(--text-primary);
 }
 
 .form-group input:focus,
@@ -147,7 +147,7 @@
 
 .item-content p {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
@@ -286,7 +286,7 @@
   text-align: center;
   padding: 60px 20px;
   font-size: 18px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Responsive */
@@ -314,4 +314,21 @@
   .form-section h2 {
     font-size: 20px;
   }
+}
+/* Theme support additions */
+.business-profile-page {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+.business-profile-page input,
+.business-profile-page select,
+.business-profile-page textarea {
+  background-color: var(--input-background);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.business-profile-page label {
+  color: var(--text-primary);
 }
