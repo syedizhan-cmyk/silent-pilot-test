@@ -6,14 +6,45 @@ export const generateAIImage = async (prompt, businessContext = '', style = 'pro
   try {
     console.log('🎨 Generating AI image with free services...');
     
-    // Simple prompt enhancement without Gemini (to avoid API calls)
+    // Enhance prompt with Gemini (with fallback)
     let enhancedPrompt = prompt;
-    if (businessContext) {
-      enhancedPrompt = `${prompt}, ${style} style, ${businessContext}, professional, high quality`;
+    
+    // Try to use Gemini for prompt enhancement if available
+    const geminiKey = process.env.REACT_APP_GEMINI_API_KEY;
+    if (geminiKey && businessContext) {
+      try {
+        console.log('🤖 Using Gemini to enhance prompt...');
+        const geminiPrompt = `Create a detailed, vivid image generation prompt.
+
+User request: ${prompt}
+Style: ${style}
+Business context: ${businessContext}
+
+Create ONE optimized image prompt (max 400 characters) that:
+- Describes the visual scene in specific detail
+- Includes the ${style} style naturally
+- Incorporates relevant business branding/context
+- Specifies lighting, composition, and mood
+- Uses descriptive, evocative language
+- Avoids generic descriptions
+
+Return ONLY the prompt text, no explanations or quotes.`;
+
+        enhancedPrompt = await generateContentWithGemini(geminiPrompt, 'image', businessContext);
+        enhancedPrompt = enhancedPrompt.trim().replace(/^["']|["']$/g, '').substring(0, 1000);
+        console.log('✅ Gemini-enhanced prompt:', enhancedPrompt);
+      } catch (geminiError) {
+        console.log('⚠️ Gemini enhancement failed, using fallback:', geminiError.message);
+        enhancedPrompt = `${prompt}, ${style} style, ${businessContext}, professional, high quality`;
+      }
     } else {
-      enhancedPrompt = `${prompt}, ${style} style, professional, high quality, detailed`;
+      // Fallback: simple enhancement
+      enhancedPrompt = businessContext 
+        ? `${prompt}, ${style} style, ${businessContext}, professional, high quality`
+        : `${prompt}, ${style} style, professional, high quality, detailed`;
     }
-    console.log('Enhanced prompt:', enhancedPrompt);
+    
+    console.log('Final enhanced prompt:', enhancedPrompt);
     
     // Add negative prompt for better quality
     const negativePrompt = 'blurry, low quality, distorted, watermark, text, signature, ugly, duplicate, morbid, mutilated, extra fingers, poorly drawn hands, poorly drawn face';
