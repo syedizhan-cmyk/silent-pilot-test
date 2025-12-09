@@ -1,0 +1,149 @@
+.autopilot-v2{padding:var(--space-8);max-width:1400px;margin:0 auto}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-6);margin-bottom:var(--space-8)}.stat-card{padding:var(--space-6);background:linear-gradient(135deg,var(--primary-500),var(--primary-600));border-radius:var(--radius-xl);text-align:center;color:white}.stat-value{font-size:var(--text-3xl);font-weight:var(--font-bold);margin-bottom:var(--space-2)}.stat-label{font-size:var(--text-sm);opacity:0.9}.settings-grid{display:flex;flex-direction:column;gap:var(--space-4)}.setting-item{display:flex;justify-content:space-between;align-items:center;padding:var(--space-4);background:var(--bg-elevated);border-radius:var(--radius-lg)}.toggle-switch{position:relative;width:50px;height:26px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:var(--border-default);border-radius:26px;transition:0.3s;cursor:pointer}.toggle-switch input:checked+.slider{background:var(--primary-500)}.slider:before{content:'';position:absolute;height:18px;width:18px;left:4px;bottom:4px;background:white;border-radius:50%;transition:0.3s}.toggle-switch input:checked+.slider:before{transform:translateX(24px)}
+
+/* Alert Info */
+.alert-info {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  color: #3b82f6;
+  font-size: 14px;
+}
+
+/* Platforms Grid */
+.platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.platform-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.platform-chip:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.platform-chip.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: var(--primary-color);
+}
+
+.platform-icon {
+  font-size: 20px;
+}
+
+.platform-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.check-icon {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+/* Content Types Grid */
+.content-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.content-type-card {
+  padding: 16px;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.content-type-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.content-type-card.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: var(--primary-color);
+}
+
+.type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.type-header strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.content-type-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+/* Connected Accounts List */
+.connected-accounts-list {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--hover-bg);
+  border-radius: 8px;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-details strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.account-id {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.btn-text.delete:hover {
+  color: #ef4444;
+}
