@@ -59,9 +59,13 @@ Return ONLY the prompt text, no explanations or quotes.`;
       // Use Pollinations with enhanced settings for better quality
       const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1024&height=1024&nologo=true&enhance=true&model=flux&seed=${Date.now()}`;
       
-      // Test if image loads
-      const testResponse = await fetch(pollinationsUrl, { method: 'HEAD' });
-      if (testResponse.ok) {
+      // Wait a bit for Pollinations to generate the image (it generates on-the-fly)
+      console.log('Waiting for Pollinations to generate image...');
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      
+      // Test if image loads by actually fetching it
+      const testResponse = await fetch(pollinationsUrl);
+      if (testResponse.ok && testResponse.headers.get('content-type')?.includes('image')) {
         console.log('✅ Image generated with Pollinations AI');
         return {
           success: true,
