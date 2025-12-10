@@ -1,13 +1,6 @@
 // Automatic Content Generation Engine
 import { generateContentWithGemini } from './gemini';
 import { generateAIImage } from './mediaGenerator';
-import { generateHashtags, formatHashtags } from './hashtagGenerator';
-import { 
-  calculateContentMix, 
-  generateContentIdeas as generateVarietyIdeas, 
-  generateCompletePost as generateVarietyPost,
-  getOptimalPostingTimes 
-} from './contentVarietyEngine';
 
 // Content Strategy Templates by Industry
 const industryStrategies = {

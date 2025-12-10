@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useBusinessProfileStore } from '../store/businessProfileStore';
 import { autoGenerateContentCalendar } from '../lib/autoContentGenerator';
+import { autoGenerateContentCalendarV2 } from '../lib/autoContentGeneratorV2';
 import { supabase } from '../lib/supabase';
 import './AutoPilot.css';
 
@@ -91,8 +92,9 @@ export default function AutoPilot() {
 
     setGenerating(true);
     try {
-      // Generate content calendar
-      const result = await autoGenerateContentCalendar(profile, settings.contentWeeks);
+      // Generate enhanced content calendar with V2 engine
+      console.log('🚀 Using Enhanced AutoPilot V2...');
+      const result = await autoGenerateContentCalendarV2(profile, settings.contentWeeks);
       
       // Save to database
       const contentToSave = result.content.map(c => ({
