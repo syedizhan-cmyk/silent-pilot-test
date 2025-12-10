@@ -56,12 +56,12 @@ Return ONLY the prompt text, no explanations or quotes.`;
     try {
       console.log('Trying Pollinations AI (FREE - Stable Diffusion)...');
       
-      // Use Pollinations with enhanced settings for better quality
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1024&height=1024&nologo=true&enhance=true&model=flux&seed=${Date.now()}`;
+      // Use Pollinations with BEST quality settings
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1024&height=1024&nologo=true&enhance=true&model=flux&seed=${Date.now()}&quality=high`;
       
-      // Wait a bit for Pollinations to generate the image (it generates on-the-fly)
-      console.log('Waiting for Pollinations to generate image...');
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      // Wait longer for better quality generation
+      console.log('Waiting for high-quality image generation...');
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds for better quality
       
       // Test if image loads by actually fetching it
       const testResponse = await fetch(pollinationsUrl);
