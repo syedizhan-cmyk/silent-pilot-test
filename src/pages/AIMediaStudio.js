@@ -225,24 +225,6 @@ export default function AIMediaStudio() {
             <button onClick={handleGenerateImage} disabled={loading || !imagePrompt} className="btn-generate">
               {loading ? '⏳ Generating...' : '✨ Generate Image'}
             </button>
-
-            <div className="info-box">
-              <strong>🎨 FREE AI Image Generation:</strong>
-              <br/><br/>
-              <strong>✅ Pollinations AI (Flux Model) - Primary</strong>
-              <br/>• Uses advanced Flux model for better quality
-              <br/>• Completely FREE, unlimited generations
-              <br/>• No API key needed
-              <br/>• Better than basic DeepAI
-              <br/><br/>
-              <strong>Backup Services:</strong>
-              <br/>• Leonardo.ai - Best quality (150 free tokens/day, requires signup)
-              <br/>• DeepAI - Stable Diffusion endpoint
-              <br/>• Hugging Face - Free with rate limits
-              <br/>• Stock photos - Always works
-              <br/><br/>
-              <strong>💡 Pro Tip:</strong> For best quality, sign up for FREE Leonardo.ai (30 images/day) at <a href="https://leonardo.ai" target="_blank" rel="noopener noreferrer">leonardo.ai</a>
-            </div>
           </div>
         );
 
