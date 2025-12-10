@@ -74,7 +74,8 @@ export default function AIMediaStudio() {
     
     try {
       console.log('Generating image with prompt:', imagePrompt);
-      const result = await generateAIImage(imagePrompt.trim(), getBusinessContext(), imageStyle);
+      // Don't pass business context to AI Media Studio - use exact prompt
+      const result = await generateAIImage(imagePrompt.trim(), null, imageStyle);
       console.log('Image generated:', result);
       setResult(result);
     } catch (err) {
