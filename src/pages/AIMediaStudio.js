@@ -63,12 +63,22 @@ export default function AIMediaStudio() {
   };
 
   const handleGenerateImage = async () => {
+    if (!imagePrompt || imagePrompt.trim() === '') {
+      setError('Please enter a prompt');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
+    setResult(null); // Clear previous result
+    
     try {
-      const result = await generateAIImage(imagePrompt, getBusinessContext(), imageStyle);
+      console.log('Generating image with prompt:', imagePrompt);
+      const result = await generateAIImage(imagePrompt.trim(), getBusinessContext(), imageStyle);
+      console.log('Image generated:', result);
       setResult(result);
     } catch (err) {
+      console.error('Image generation error:', err);
       setError(err.message);
     }
     setLoading(false);
