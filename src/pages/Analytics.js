@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useContentStore } from '../store/contentStore';
 import { useAnalyticsStore } from '../store/analyticsStore';
+import { supabase } from '../lib/supabase';
 import SocialIcon from '../components/SocialIcon';
 import './Analytics.css';
 
@@ -23,11 +24,25 @@ function Analytics() {
 
   const loadAnalytics = async () => {
     setLoading(true);
-    await getPosts(user.id);
-    const timeRangeMap = { '7d': '7days', '30d': '30days', '90d': '90days' };
-    const result = await getAnalyticsSummary(user.id, timeRangeMap[timeRange]);
-    if (result.data) {
-      setAnalyticsData(result.data);
+    try {
+      // Load scheduled posts from Auto-Pilot
+      const { data: scheduledPosts, error } = await supabase
+        .from('scheduled_content')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (!error && scheduledPosts) {
+        console.log(`Loaded ${scheduledPosts.length} scheduled posts for analytics`);
+      }
+
+      await getPosts(user.id);
+      const timeRangeMap = { '7d': '7days', '30d': '30days', '90d': '90days' };
+      const result = await getAnalyticsSummary(user.id, timeRangeMap[timeRange]);
+      if (result.data) {
+        setAnalyticsData(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error);
     }
     setLoading(false);
   };
@@ -92,7 +107,32 @@ function Analytics() {
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 90 days</option>
           </select>
-          <button className="btn btn-secondary">📊 Export Report</button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => {
+              const reportData = {
+                totalReach: metrics.totalReach,
+                engagement: metrics.engagement,
+                clicks: metrics.clicks,
+                conversions: metrics.conversions,
+                platformData,
+                topPosts,
+                timeRange,
+                generatedAt: new Date().toISOString()
+              };
+              const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `analytics-report-${timeRange}-${Date.now()}.json`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+          >
+            📊 Export Report
+          </button>
         </div>
       </div>
 

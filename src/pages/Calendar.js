@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
 import { useAuthStore } from '../store/authStore';
 import SocialIcon from '../components/SocialIcon';
@@ -7,12 +7,15 @@ import './Calendar.css';
 
 function Calendar() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = useAuthStore((state) => state.user);
   const { posts, getPosts, updatePost, deletePost, loading } = useContentStore();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('month'); // month, week, day
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showDateModal, setShowDateModal] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Fetch posts on component mount
@@ -21,6 +24,32 @@ function Calendar() {
       getPosts(user.id);
     }
   }, [user, getPosts]);
+
+  // Handle deep-link from AutoPilot
+  useEffect(() => {
+    const postId = searchParams.get('postId');
+    if (postId && posts.length > 0) {
+      // Find the original post (not the transformed scheduledPosts version)
+      const originalPost = posts.find(p => p.id === postId);
+      if (originalPost) {
+        // Transform to match the format expected by the modal
+        const transformedPost = {
+          id: originalPost.id,
+          platform: originalPost.platform,
+          content: originalPost.content,
+          date: originalPost.scheduled_for ? new Date(originalPost.scheduled_for).toLocaleDateString() : null,
+          time: originalPost.scheduled_for ? new Date(originalPost.scheduled_for).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null,
+          status: originalPost.status,
+          media: originalPost.image_url,
+          // Keep original fields for actions
+          scheduled_for: originalPost.scheduled_for,
+          image_url: originalPost.image_url
+        };
+        setSelectedPost(transformedPost);
+        setShowModal(true);
+      }
+    }
+  }, [searchParams, posts]);
 
   // Convert posts to scheduled format
   const scheduledPosts = posts
@@ -32,7 +61,10 @@ function Calendar() {
       date: post.scheduled_for ? new Date(post.scheduled_for).toISOString().split('T')[0] : null,
       time: post.scheduled_for ? new Date(post.scheduled_for).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null,
       status: post.status,
-      media: post.image_url
+      media: post.image_url,
+      // Keep original fields for modal
+      scheduled_for: post.scheduled_for,
+      image_url: post.image_url
     }))
     .filter(post => post.date); // Only show posts with dates
 
@@ -129,7 +161,7 @@ function Calendar() {
           <p className="text-secondary mt-2">Plan and schedule your content across all platforms</p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-secondary">
+          <button className="btn btn-secondary" onClick={() => navigate('/dashboard/analytics')}>
             <span>📊</span>
             <span>Analytics</span>
           </button>
@@ -204,25 +236,34 @@ function Calendar() {
                     <div 
                       key={day} 
                       className={`calendar-day ${isToday ? 'today' : ''} ${postsForDay.length > 0 ? 'has-posts' : ''}`}
+                      onClick={() => {
+                        if (postsForDay.length > 0) {
+                          setSelectedDate({ day, posts: postsForDay });
+                          setShowDateModal(true);
+                        }
+                      }}
+                      style={{ cursor: postsForDay.length > 0 ? 'pointer' : 'default' }}
                     >
                       <div className="day-number">{day}</div>
                       {postsForDay.length > 0 && (
                         <div className="day-posts">
-                          {postsForDay.map(post => (
+                          {postsForDay.slice(0, 3).map(post => (
                             <button
                               key={post.id}
-                              className="day-post-item"
-                              onClick={() => {
+                              className={`day-post-item status-${post.status}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedPost(post);
                                 setShowModal(true);
                               }}
+                              title={`${post.platform} - ${post.status}`}
                             >
                               <SocialIcon platform={post.platform} size={16} />
                               <span className="post-time">{post.time}</span>
                             </button>
                           ))}
-                          {postsForDay.length > 2 && (
-                            <div className="more-posts">+{postsForDay.length - 2} more</div>
+                          {postsForDay.length > 3 && (
+                            <div className="more-posts">+{postsForDay.length - 3} more</div>
                           )}
                         </div>
                       )}
@@ -307,6 +348,66 @@ function Calendar() {
           </div>
         </div>
       </div>
+
+      {/* Date Detail Modal - Shows all posts for a selected date */}
+      {showDateModal && selectedDate && (
+        <div className="modal-overlay" onClick={() => setShowDateModal(false)}>
+          <div className="modal-content date-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Posts for {monthNames[currentDate.getMonth()]} {selectedDate.day}, {currentDate.getFullYear()}</h3>
+              <button className="modal-close" onClick={() => setShowDateModal(false)}>×</button>
+            </div>
+            
+            <div className="date-posts-list">
+              {selectedDate.posts.length === 0 ? (
+                <p className="no-posts">No posts scheduled for this date</p>
+              ) : (
+                selectedDate.posts.map(post => (
+                  <div key={post.id} className={`date-post-item status-${post.status}`}>
+                    <div className="post-icon-time">
+                      <SocialIcon platform={post.platform} size={24} />
+                      <span className="post-time-detail">{post.time}</span>
+                      <span className={`status-badge ${post.status}`}>{post.status}</span>
+                    </div>
+                    <div className="post-content-preview">
+                      {post.content.substring(0, 150)}
+                      {post.content.length > 150 && '...'}
+                    </div>
+                    <div className="post-actions">
+                      <button 
+                        className="btn-small btn-secondary"
+                        onClick={() => {
+                          setSelectedPost(post);
+                          setShowDateModal(false);
+                          setShowModal(true);
+                        }}
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        className="btn-small btn-danger"
+                        onClick={async () => {
+                          if (window.confirm('Are you sure you want to delete this post?')) {
+                            const result = await deletePost(post.id);
+                            if (result.error) {
+                              setMessage({ type: 'error', text: result.error });
+                            } else {
+                              setMessage({ type: 'success', text: 'Post deleted successfully!' });
+                              setShowDateModal(false);
+                            }
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Post Detail Modal */}
       {showModal && selectedPost && (

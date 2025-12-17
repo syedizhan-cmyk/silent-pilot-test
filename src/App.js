@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import './theme.css';
+import CustomCursor from './components/CustomCursor';
 
 // Landing Page Components
 import Header from './components/Header';
@@ -77,6 +78,7 @@ function App() {
 
   return (
     <Router>
+      <CustomCursor />
       <Routes>
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />

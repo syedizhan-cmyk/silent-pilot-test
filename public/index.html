@@ -9,6 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <title>Silent Pilot</title>
+    <style>
+      /* Safari compatibility fixes */
+      @supports not (backdrop-filter: blur(10px)) {
+        .hero-stats, .visual-card, .btn-hero-secondary, 
+        .feature-card, .demo-content, .newsletter-container, 
+        .pricing-card {
+          background: rgba(255, 255, 255, 0.15) !important;
+        }
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

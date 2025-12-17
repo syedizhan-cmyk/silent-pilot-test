@@ -21,16 +21,24 @@ function ContentLibrary() {
   const loadMedia = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('media_library')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      // Load both media library and scheduled posts
+      const [mediaResult, postsResult] = await Promise.all([
+        supabase
+          .from('media_library')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('scheduled_content')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('scheduled_for', { ascending: true })
+      ]);
 
-      if (error) throw error;
+      if (mediaResult.error) throw mediaResult.error;
       
-      // Transform to match expected format
-      const items = (data || []).map(item => ({
+      // Transform media library items
+      const mediaItems = (mediaResult.data || []).map(item => ({
         id: item.id,
         title: item.file_name,
         type: item.file_type?.startsWith('image/') ? 'image' : item.file_type?.startsWith('video/') ? 'video' : 'file',
@@ -39,32 +47,77 @@ function ContentLibrary() {
         date: new Date(item.created_at).toLocaleDateString(),
         thumbnail: item.file_url,
         views: 0,
-        engagement: 0
+        engagement: 0,
+        source: 'media'
       }));
       
-      setContentItems(items);
+      // Transform scheduled posts
+      const postItems = (postsResult.data || []).map(item => ({
+        id: item.id,
+        title: item.content.substring(0, 50) + '...',
+        type: 'post',
+        platform: item.platform || 'social',
+        status: item.status || 'scheduled',
+        date: new Date(item.scheduled_for).toLocaleDateString(),
+        scheduledFor: item.scheduled_for,
+        content: item.content,
+        thumbnail: '📝',
+        views: 0,
+        engagement: 0,
+        source: 'autopilot'
+      }));
+      
+      // Combine and sort by date
+      const allItems = [...mediaItems, ...postItems].sort((a, b) => {
+        const dateA = new Date(a.scheduledFor || a.date);
+        const dateB = new Date(b.scheduledFor || b.date);
+        return dateB - dateA;
+      });
+      
+      setContentItems(allItems);
+      console.log(`Loaded ${mediaItems.length} media items and ${postItems.length} scheduled posts`);
     } catch (error) {
-      console.error('Error loading media:', error);
+      console.error('Error loading content:', error);
       setMessage({ type: 'error', text: error.message });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this media?')) {
+  const handleDelete = async (id, source) => {
+    if (window.confirm(`Delete this ${source === 'autopilot' ? 'post' : 'media'}?`)) {
       try {
+        const table = source === 'autopilot' ? 'scheduled_content' : 'media_library';
         const { error } = await supabase
-          .from('media_library')
+          .from(table)
           .delete()
           .eq('id', id);
 
         if (error) throw error;
-        setMessage({ type: 'success', text: 'Media deleted!' });
+        setMessage({ type: 'success', text: `${source === 'autopilot' ? 'Post' : 'Media'} deleted!` });
         loadMedia();
       } catch (error) {
         setMessage({ type: 'error', text: error.message });
       }
+    }
+  };
+
+  const handleEdit = (item) => {
+    if (item.source === 'autopilot') {
+      // For scheduled posts, show content in alert (can be enhanced to modal)
+      alert(`Edit Post:\n\nPlatform: ${item.platform}\nScheduled: ${item.date}\n\nContent:\n${item.content}`);
+    } else {
+      setMessage({ type: 'info', text: 'Media editing coming soon!' });
+    }
+  };
+
+  const handleView = (item) => {
+    if (item.source === 'autopilot') {
+      alert(`Post Details:\n\nPlatform: ${item.platform}\nStatus: ${item.status}\nScheduled: ${item.date}\n\nContent:\n${item.content}`);
+    } else if (item.thumbnail.startsWith('http')) {
+      window.open(item.thumbnail, '_blank');
+    } else {
+      setMessage({ type: 'info', text: 'Preview not available' });
     }
   };
 
@@ -209,9 +262,9 @@ function ContentLibrary() {
                   <span className="thumbnail-emoji">{item.thumbnail}</span>
                 </div>
                 <div className="content-hover">
-                  <button className="action-btn" title="View">👁️</button>
-                  <button className="action-btn" title="Edit">✏️</button>
-                  <button className="action-btn" title="Download">⬇️</button>
+                  <button className="action-btn" onClick={() => handleView(item)} title="View">👁️</button>
+                  <button className="action-btn" onClick={() => handleEdit(item)} title="Edit">✏️</button>
+                  <button className="action-btn" onClick={() => handleDelete(item.id, item.source)} title="Delete">🗑️</button>
                 </div>
                 <span className={`status-badge ${item.status}`}>{item.status}</span>
               </div>
@@ -254,10 +307,9 @@ function ContentLibrary() {
               </div>
               <span className={`status-badge ${item.status}`}>{item.status}</span>
               <div className="list-actions">
-                <button className="icon-btn" title="View">👁️</button>
-                <button className="icon-btn" title="Edit">✏️</button>
-                <button className="icon-btn" title="Download">⬇️</button>
-                <button className="icon-btn delete" title="Delete">🗑️</button>
+                <button className="icon-btn" onClick={() => handleView(item)} title="View">👁️</button>
+                <button className="icon-btn" onClick={() => handleEdit(item)} title="Edit">✏️</button>
+                <button className="icon-btn delete" onClick={() => handleDelete(item.id, item.source)} title="Delete">🗑️</button>
               </div>
             </div>
           ))}

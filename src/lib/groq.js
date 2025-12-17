@@ -6,6 +6,10 @@ const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
 
 export const generateContentWithGroq = async (prompt, platform = 'general') => {
   try {
+    if (!GROQ_API_KEY || GROQ_API_KEY.trim() === '' || GROQ_API_KEY === 'your_groq_api_key_here') {
+      throw new Error('Groq API key not configured');
+    }
+    
     console.log('🚀 Starting AI generation with Groq...');
     
     const systemMessage = `You are a professional social media content creator. Generate engaging, high-quality content for ${platform}. Keep it concise, engaging, and platform-appropriate. Include relevant emojis and hashtags.`;
@@ -17,28 +21,35 @@ export const generateContentWithGroq = async (prompt, platform = 'general') => {
         'Authorization': `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192', // Free fast model
+        model: 'llama-3.3-70b-versatile', // Updated to latest free model
         messages: [
           { role: 'system', content: systemMessage },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 500,
+        max_tokens: 600,
         temperature: 0.7,
       })
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices[0]?.message?.content || 'Generated content successfully';
-      console.log('✅ Successfully generated content using Groq');
-      return content.trim();
-    } else {
-      throw new Error(`Groq API error: ${response.status}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMsg = errorData.error?.message || `HTTP ${response.status}`;
+      throw new Error(`Groq API error: ${errorMsg}`);
     }
     
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content;
+    
+    if (!content || content.trim().length < 50) {
+      throw new Error('Groq returned empty or too short response');
+    }
+    
+    console.log('✅ Successfully generated content using Groq');
+    return content.trim();
+    
   } catch (error) {
-    console.error('Groq API Error:', error);
-    throw new Error('Groq API unavailable');
+    console.error('Groq API Error:', error.message);
+    throw new Error(`Groq failed: ${error.message}`);
   }
 };
 

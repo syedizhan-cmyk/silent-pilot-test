@@ -8,6 +8,7 @@ export const useBusinessProfileStore = create((set, get) => ({
 
   // Load business profile
   loadProfile: async (userId) => {
+    console.log('📊 Loading business profile for user:', userId);
     set({ loading: true, error: null });
     try {
       const { data, error } = await supabase
@@ -16,11 +17,16 @@ export const useBusinessProfileStore = create((set, get) => ({
         .eq('user_id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('❌ Error loading profile:', error);
+        throw error;
+      }
 
+      console.log('✅ Profile loaded:', data ? 'Success' : 'No profile found');
       set({ profile: data, loading: false });
       return data;
     } catch (error) {
+      console.error('❌ Profile load failed:', error.message);
       set({ error: error.message, loading: false });
       return null;
     }

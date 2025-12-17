@@ -130,6 +130,11 @@
 
 .calendar-day:hover {
   background: var(--bg-card-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-day:hover .day-number {
+  color: var(--text-primary);
 }
 
 .calendar-day.empty {
@@ -517,4 +522,184 @@
   .quick-stats {
     grid-template-columns: 1fr;
   }
+}
+
+/* Status color indicators - make them more visible */
+.day-post-item.status-scheduled {
+  border-left: 4px solid #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.day-post-item.status-published {
+  border-left: 4px solid #10b981 !important;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.day-post-item.status-draft {
+  border-left: 4px solid #f59e0b !important;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+/* Legend dots with proper colors */
+.legend-dot.scheduled {
+  background-color: #3b82f6;
+}
+
+.legend-dot.published {
+  background-color: #10b981;
+}
+
+.legend-dot.draft {
+  background-color: #f59e0b;
+}
+
+/* Date Modal Styles */
+.date-modal {
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.date-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.date-post-item {
+  padding: 16px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  border-left: 4px solid #e5e7eb;
+  color: var(--text-primary);
+}
+
+.date-post-item.status-scheduled {
+  border-left-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+.date-post-item.status-published {
+  border-left-color: #10b981;
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+.date-post-item.status-draft {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+.post-icon-time {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.post-time-detail {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-left: auto;
+}
+
+.status-badge.scheduled {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.published {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.post-content-preview {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* Nuclear option - force identical styling */
+.post-actions .btn-small {
+  height: 36px !important;
+  width: 110px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block !important;
+  line-height: 34px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  border: 1px solid transparent !important;
+  outline: none;
+  box-sizing: border-box !important;
+}
+
+.post-actions .btn-small.btn-secondary {
+  background: var(--primary-500) !important;
+  color: white !important;
+  border-color: var(--primary-500) !important;
+}
+
+.post-actions .btn-small.btn-secondary:hover {
+  background: var(--primary-600) !important;
+  border-color: var(--primary-600) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.post-actions .btn-small.btn-danger {
+  background: var(--bg-elevated) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-default) !important;
+}
+
+.post-actions .btn-small.btn-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+.no-posts {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px;
+  font-size: 16px;
+}
+
+/* Make calendar day clickable */
+/* Remove conflicting hover style */
+.calendar-day.has-posts:hover {
+  cursor: pointer;
 }

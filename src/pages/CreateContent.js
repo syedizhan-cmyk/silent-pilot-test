@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
+import { createABTest, autoOptimizeContent } from '../lib/abTestingEngine';
 import SocialIcon from '../components/SocialIcon';
 import './CreateContent.css';
 
@@ -27,6 +28,14 @@ function CreateContent() {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [saving, setSaving] = useState(false);
+  
+  // A/B Testing State
+  const [showABTestPanel, setShowABTestPanel] = useState(false);
+  const [abTestVariants, setAbTestVariants] = useState([]);
+  const [generatingVariants, setGeneratingVariants] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [showOptimizeSuggestion, setShowOptimizeSuggestion] = useState(false);
+  const [optimizedContent, setOptimizedContent] = useState(null);
 
   // Load post if editing
   useEffect(() => {
@@ -78,6 +87,85 @@ function CreateContent() {
     } else {
       setSelectedPlatforms([...selectedPlatforms, platformId]);
     }
+  };
+
+  // Generate A/B Test Variants
+  const handleGenerateABTest = async () => {
+    if (!content.trim()) {
+      setMessage({ type: 'error', text: 'Please enter some content first' });
+      return;
+    }
+    
+    if (selectedPlatforms.length === 0) {
+      setMessage({ type: 'error', text: 'Please select at least one platform' });
+      return;
+    }
+    
+    setGeneratingVariants(true);
+    setShowABTestPanel(true);
+    
+    try {
+      const platform = selectedPlatforms[0];
+      const result = await createABTest(content, user.id, platform);
+      
+      if (result) {
+        setAbTestVariants(result.variants);
+        setMessage({ type: 'success', text: `✅ Generated ${result.variants.length} A/B test variants!` });
+      }
+    } catch (error) {
+      console.error('Error generating A/B test:', error);
+      setMessage({ type: 'error', text: 'Failed to generate A/B variants. Please try again.' });
+    } finally {
+      setGeneratingVariants(false);
+    }
+  };
+  
+  // Auto-optimize content
+  const handleAutoOptimize = async () => {
+    if (!content.trim()) {
+      setMessage({ type: 'error', text: 'Please enter some content first' });
+      return;
+    }
+    
+    if (selectedPlatforms.length === 0) {
+      setMessage({ type: 'error', text: 'Please select at least one platform' });
+      return;
+    }
+    
+    setAiGenerating(true);
+    
+    try {
+      const platform = selectedPlatforms[0];
+      const result = await autoOptimizeContent(content, user.id, platform);
+      
+      if (result) {
+        setOptimizedContent(result);
+        setShowOptimizeSuggestion(true);
+        setMessage({ type: 'success', text: `✨ Content optimized with ${result.expectedImprovement} expected improvement!` });
+      }
+    } catch (error) {
+      console.error('Error optimizing:', error);
+      setMessage({ type: 'error', text: 'Failed to optimize content. Please try again.' });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+  
+  // Apply optimized content
+  const handleApplyOptimization = () => {
+    if (optimizedContent) {
+      setContent(optimizedContent.optimized);
+      setShowOptimizeSuggestion(false);
+      setMessage({ type: 'success', text: '✅ Optimized content applied!' });
+    }
+  };
+  
+  // Use variant
+  const handleUseVariant = (variant) => {
+    setContent(variant.content);
+    setSelectedVariant(variant);
+    setShowABTestPanel(false);
+    setMessage({ type: 'success', text: `✅ Using ${variant.name}` });
   };
 
   const handleAIGenerate = async () => {
@@ -466,8 +554,59 @@ Ready to boost your productivity? Try it today!
                   
                   <div className="editor-footer">
                     <span className="char-count">{content.length} / 2000</span>
+                    <div className="editor-actions">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleAutoOptimize}
+                        disabled={aiGenerating || !content.trim()}
+                        title="AI will optimize your content for better engagement"
+                      >
+                        ⚡ Auto-Optimize
+                      </button>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleGenerateABTest}
+                        disabled={generatingVariants || !content.trim()}
+                        title="Generate A/B test variants"
+                      >
+                        🧪 Create A/B Test
+                      </button>
+                    </div>
                   </div>
                 </div>
+
+                {/* Auto-Optimize Suggestion */}
+                {showOptimizeSuggestion && optimizedContent && (
+                  <div className="optimization-banner">
+                    <div className="optimization-header">
+                      <span className="optimization-icon">✨</span>
+                      <div>
+                        <h4>Content Optimized!</h4>
+                        <p>Expected improvement: {optimizedContent.expectedImprovement}</p>
+                      </div>
+                      <button className="close-banner" onClick={() => setShowOptimizeSuggestion(false)}>×</button>
+                    </div>
+                    <div className="optimization-comparison">
+                      <div className="comparison-side">
+                        <label>Original:</label>
+                        <div className="comparison-content">{optimizedContent.original}</div>
+                      </div>
+                      <div className="comparison-arrow">→</div>
+                      <div className="comparison-side">
+                        <label>Optimized:</label>
+                        <div className="comparison-content optimized">{optimizedContent.optimized}</div>
+                      </div>
+                    </div>
+                    <div className="optimization-actions">
+                      <button className="btn btn-secondary" onClick={() => setShowOptimizeSuggestion(false)}>
+                        Keep Original
+                      </button>
+                      <button className="btn btn-primary" onClick={handleApplyOptimization}>
+                        ✅ Use Optimized Version
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Media Upload */}
                 <div className="media-section">
@@ -662,6 +801,76 @@ Ready to boost your productivity? Try it today!
           </div>
         </div>
       </div>
+
+      {/* A/B Test Panel Modal */}
+      {showABTestPanel && (
+        <div className="modal-overlay" onClick={() => setShowABTestPanel(false)}>
+          <div className="modal-content ab-test-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>🧪 A/B Test Variants</h2>
+              <button className="modal-close" onClick={() => setShowABTestPanel(false)}>✕</button>
+            </div>
+            
+            <div className="modal-body">
+              {generatingVariants ? (
+                <div className="generating-loader">
+                  <div className="loader-spinner"></div>
+                  <p>AI is generating test variants...</p>
+                  <small>Analyzing your content and creating strategic alternatives</small>
+                </div>
+              ) : (
+                <>
+                  <div className="variants-intro">
+                    <p>✨ AI generated {abTestVariants.length} strategic variants for {selectedPlatforms[0]}:</p>
+                  </div>
+                  
+                  <div className="variants-grid">
+                    {abTestVariants.map((variant, index) => (
+                      <div key={index} className="variant-card">
+                        <div className="variant-header">
+                          <h3>{variant.name}</h3>
+                        </div>
+                        <div className="variant-content">
+                          <div className="variant-field">
+                            <label>Content:</label>
+                            <div className="variant-value">{variant.content}</div>
+                          </div>
+                          <div className="variant-field">
+                            <label>Hypothesis:</label>
+                            <div className="variant-hypothesis">{variant.hypothesis}</div>
+                          </div>
+                        </div>
+                        <button 
+                          className="btn btn-primary btn-sm"
+                          onClick={() => handleUseVariant(variant)}
+                        >
+                          Use This Variant
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="ab-test-info">
+                    <h4>📈 How Social Media A/B Testing Works:</h4>
+                    <ul>
+                      <li>Each variant tests a different approach (emotional, data-driven, curiosity)</li>
+                      <li>Post variants at different times to see which performs best</li>
+                      <li>AI tracks engagement, reach, and clicks automatically</li>
+                      <li>Future content is optimized based on winning patterns</li>
+                    </ul>
+                  </div>
+
+                  <div className="modal-actions">
+                    <button className="btn btn-secondary" onClick={() => setShowABTestPanel(false)}>
+                      Close
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -32,16 +32,23 @@ function Signup() {
 
     setLoading(true);
 
-    const { data, error } = await signUp(email, password, fullName);
+    try {
+      const { error } = await signUp(email, password, fullName);
 
-    if (error) {
-      setError(error);
+      if (error) {
+        setError(error);
+        setLoading(false);
+      } else {
+        setSuccess(true);
+        setLoading(false);
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('An unexpected error occurred. Please try again.');
       setLoading(false);
-    } else {
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
     }
   };
 

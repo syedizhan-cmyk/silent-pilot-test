@@ -25,6 +25,7 @@
     linear-gradient(rgba(88, 101, 242, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(88, 101, 242, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
 }
 
@@ -133,6 +134,7 @@
 .btn-hero-secondary {
   padding: 16px 32px;
   background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -158,6 +160,7 @@
   gap: 48px;
   padding: 32px;
   background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
@@ -200,6 +203,7 @@
   width: 100%;
   max-width: 600px;
   background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;

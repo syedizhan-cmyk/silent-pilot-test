@@ -41,9 +41,10 @@ export const useAuthStore = create((set) => ({
 
       if (error) throw error;
 
-      set({ user: data.user, session: data.session });
+      set({ user: data.user, session: data.session, loading: false });
       return { data, error: null };
     } catch (error) {
+      console.error('SignIn error:', error);
       return { data: null, error: error.message };
     }
   },
@@ -64,7 +65,10 @@ export const useAuthStore = create((set) => ({
   // Initialize auth state
   initialize: async () => {
     try {
+      console.log('🔐 Initializing auth...');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('📍 Session loaded:', session ? 'Active' : 'None');
+      
       set({ 
         user: session?.user ?? null, 
         session: session ?? null,
@@ -73,9 +77,11 @@ export const useAuthStore = create((set) => ({
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange((_event, session) => {
+        console.log('🔄 Auth state changed:', _event, session ? 'User logged in' : 'User logged out');
         set({ 
           user: session?.user ?? null, 
-          session: session ?? null 
+          session: session ?? null,
+          loading: false 
         });
       });
     } catch (error) {

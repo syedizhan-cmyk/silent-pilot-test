@@ -17,17 +17,22 @@ function Login() {
     setError('');
     setLoading(true);
 
-    const { data, error } = await signIn(email, password);
-
-    setLoading(false); // Always set loading to false
-    
-    if (error) {
-      setError(error);
-    } else {
-      // Small delay to ensure auth state is updated
-      setTimeout(() => {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        setError(error);
+        setLoading(false);
+      } else {
+        // Navigate immediately on success
         navigate('/dashboard');
-      }, 100);
+        // Set loading to false after navigation
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 

@@ -1,13 +1,9 @@
 // Automatic Content Generation Engine
 import { generateContentWithGemini } from './gemini';
+import { generateContent as generateContentWithOpenAI } from './openai';
 import { generateAIImage } from './mediaGenerator';
-import { generateHashtags, formatHashtags } from './hashtagGenerator';
-import { 
-  calculateContentMix, 
-  generateContentIdeas as generateVarietyIdeas, 
-  generateCompletePost as generateVarietyPost,
-  getOptimalPostingTimes 
-} from './contentVarietyEngine';
+import { enrichBusinessProfile, buildEnhancedBusinessContext, getEnrichedContentIdeas } from './brandIntelligence';
+import { getPerformanceOverview, getThemePerformance, getContentRecommendations } from './performanceAnalytics';
 
 // Content Strategy Templates by Industry
 const industryStrategies = {
@@ -124,37 +120,122 @@ const industryStrategies = {
 };
 
 // Generate content ideas based on business profile
-export const generateContentIdeas = async (businessProfile, count = 30) => {
+export const generateContentIdeas = async (businessProfile, count = 30, enrichedData = null, userId = null) => {
   const industry = businessProfile.industry || 'other';
   const strategy = industryStrategies[industry] || industryStrategies.other;
   
   const ideas = [];
   
-  const prompt = `Generate ${count} specific, actionable social media content ideas for this business:
+  // Get performance data if available
+  let performanceContext = '';
+  let topThemes = [];
+  
+  if (userId) {
+    try {
+      const [overview, themes, recommendations] = await Promise.all([
+        getPerformanceOverview(userId).catch(() => null),
+        getThemePerformance(userId).catch(() => []),
+        getContentRecommendations(userId).catch(() => [])
+      ]);
+      
+      if (overview && overview.totalPosts > 5) {
+        performanceContext = `
 
+## PERFORMANCE INSIGHTS (Use this to optimize content based on what works):
+Overall Performance:
+- Total Posts: ${overview.totalPosts}
+- Average Engagement: ${overview.avgEngagementRate}%
+- Top Platform: ${overview.topPlatform}
+- Trend: ${overview.trend}
+
+${themes.length > 0 ? `
+Top Performing Themes:
+${themes.slice(0, 5).map((t, i) => `${i + 1}. "${t.theme_name}" - ${Math.round(t.avg_engagement_rate)}% engagement (${t.total_posts} posts)`).join('\n')}
+` : ''}
+
+${recommendations.length > 0 ? `
+AI Recommendations:
+${recommendations.slice(0, 3).map((r, i) => `${i + 1}. ${r.message}`).join('\n')}
+` : ''}
+
+IMPORTANT: Prioritize content ideas similar to top-performing themes. Avoid themes that are declining.`;
+
+        topThemes = themes.slice(0, 3).map(t => t.theme_name);
+      }
+    } catch (error) {
+      console.log('Performance data not available yet:', error.message);
+    }
+  }
+  
+  // Build enhanced context if we have enriched data
+  let enhancedContext = '';
+  if (enrichedData) {
+    enhancedContext = `
+
+## REAL BUSINESS INTELLIGENCE (Use this to make content highly relevant and specific):
+${enrichedData.websiteData ? `
+Website Analysis:
+- Title: ${enrichedData.websiteData.title}
+- Description: ${enrichedData.websiteData.description}
+- Key Services: ${enrichedData.websiteData.services?.join(', ') || 'N/A'}
+- Main Topics: ${enrichedData.websiteData.keywords?.join(', ') || 'N/A'}
+` : ''}
+${enrichedData.brandInsights ? `
+Brand Insights:
+- Personality: ${enrichedData.brandInsights.personality || 'N/A'}
+- Differentiators: ${Array.isArray(enrichedData.brandInsights.differentiators) ? enrichedData.brandInsights.differentiators.join(', ') : enrichedData.brandInsights.differentiators || 'N/A'}
+- Content Pillars: ${Array.isArray(enrichedData.brandInsights.contentPillars) ? enrichedData.brandInsights.contentPillars.join(', ') : enrichedData.brandInsights.contentPillars || 'N/A'}
+` : ''}
+${enrichedData.contentThemes?.length ? `
+Relevant Content Themes:
+${enrichedData.contentThemes.slice(0, 10).map(t => `- ${t.name}${t.description ? ': ' + t.description : ''}`).join('\n')}
+` : ''}`;
+  }
+  
+  const prompt = `Generate ${count} HIGHLY SPECIFIC and RELEVANT social media content ideas for this business. Use the real business intelligence AND performance data provided to create content that is unique to this brand and optimized for engagement.
+
+## BUSINESS PROFILE:
 Business: ${businessProfile.business_name}
 Industry: ${businessProfile.industry}
 Description: ${businessProfile.description}
-Products/Services: ${businessProfile.products_services?.map(p => p.name).join(', ')}
+Products/Services: ${businessProfile.products_services?.map(p => `${p.name} - ${p.description}`).join(', ')}
 Target Audience: ${businessProfile.target_audience?.demographics}
+Pain Points: ${businessProfile.target_audience?.pain_points?.join(', ')}
 Brand Voice: ${businessProfile.brand_voice?.tone}
+${enhancedContext}
+${performanceContext}
 
-Content focus areas: ${strategy.topics.join(', ')}
+## CONTENT REQUIREMENTS:
+- Make each idea SPECIFIC to ${businessProfile.business_name}'s actual products/services/expertise
+- Reference their real differentiators and value propositions
+- Use insights from their website and brand analysis
+${topThemes.length > 0 ? `- PRIORITIZE themes similar to these top performers: ${topThemes.join(', ')}` : ''}
+- Avoid generic "tips" or "best practices" - make it about THEIR business
+- Content focus areas: ${strategy.topics.join(', ')}
+${performanceContext ? '- Apply performance insights to maximize engagement' : ''}
 
 For each idea, provide:
-1. Topic/Theme
-2. Content type (post, carousel, video, infographic)
-3. Key message
-4. Call to action
-5. Best platform (LinkedIn, Twitter, Instagram, Facebook)
+1. **Topic/Theme**: Specific, unique to this business
+2. **Content Type**: post, carousel, video, infographic
+3. **Key Message**: What specific value does this provide?
+4. **Call to Action**: Clear next step
+5. **Platform**: LinkedIn, Twitter, Instagram, or Facebook
+6. **Why Relevant**: How this ties to their business intelligence
 
 Format as a numbered list with clear sections.`;
 
   try {
-    const response = await generateContentWithGemini(prompt, 'strategy', '');
+    let response;
+    try {
+      console.log('Trying Gemini for content ideas...');
+      response = await generateContentWithGemini(prompt, 'strategy', '');
+    } catch (geminiError) {
+      console.warn('Gemini failed, falling back to OpenAI:', geminiError.message);
+      response = await generateContentWithOpenAI(prompt, 'strategy');
+    }
     return parseContentIdeas(response, businessProfile);
   } catch (error) {
-    console.error('Error generating content ideas with AI, using default ideas:', error);
+    console.error('All AI providers failed for content ideas:', error);
     // Return default ideas based on industry
     return generateDefaultIdeas(businessProfile, strategy, count);
   }
@@ -162,34 +243,78 @@ Format as a numbered list with clear sections.`;
 
 // Parse AI response into structured content ideas
 const parseContentIdeas = (response, businessProfile) => {
+  console.log('📝 Parsing AI response, length:', response.length);
+  
   const lines = response.split('\n');
   const ideas = [];
   let currentIdea = {};
+  
+  // Default platforms to cycle through if not specified
+  const defaultPlatforms = ['linkedin', 'twitter', 'instagram', 'facebook'];
+  let platformIndex = 0;
   
   lines.forEach(line => {
     line = line.trim();
     if (!line) return;
     
-    // Simple parsing - in production, use more robust parsing
-    if (line.match(/^\d+\./)) {
+    // Look for numbered items (1., 2., etc) or headings with **
+    if (line.match(/^\d+\./) || line.match(/^\*\*\d+/)) {
       if (currentIdea.topic) ideas.push(currentIdea);
-      currentIdea = { topic: line.replace(/^\d+\./, '').trim() };
-    } else if (line.toLowerCase().includes('type:')) {
-      currentIdea.type = line.split(':')[1]?.trim() || 'post';
+      currentIdea = { 
+        topic: line.replace(/^\d+\./, '').replace(/^\*\*\d+\.?\*\*/, '').trim().replace(/^\*\*/, '').replace(/\*\*$/, '')
+      };
+    } else if (line.toLowerCase().includes('content type:') || line.toLowerCase().includes('type:')) {
+      currentIdea.type = line.split(':')[1]?.trim().toLowerCase() || 'post';
     } else if (line.toLowerCase().includes('platform:')) {
-      currentIdea.platform = line.split(':')[1]?.trim() || 'linkedin';
-    } else if (line.toLowerCase().includes('message:')) {
+      const platformText = line.split(':')[1]?.trim().toLowerCase() || '';
+      // Extract just the platform name (linkedin, twitter, etc.)
+      const platform = platformText.split(/[,\s]/)[0] || 'linkedin';
+      currentIdea.platform = platform.replace(/[^a-z]/g, '');
+    } else if (line.toLowerCase().includes('message:') || line.toLowerCase().includes('key message:')) {
       currentIdea.message = line.split(':')[1]?.trim();
     } else if (line.toLowerCase().includes('cta:') || line.toLowerCase().includes('call to action:')) {
       currentIdea.cta = line.split(':')[1]?.trim();
+    } else if (line.toLowerCase().includes('topic') && line.includes(':')) {
+      // Handle "Topic/Theme: xyz" format
+      if (!currentIdea.topic) {
+        currentIdea.topic = line.split(':')[1]?.trim();
+      }
     }
   });
   
   if (currentIdea.topic) ideas.push(currentIdea);
   
+  console.log('✅ Parsed ideas:', ideas.length);
+  
+  // If parsing failed, try to create ideas from the raw response
+  if (ideas.length === 0) {
+    console.log('⚠️ Standard parsing failed, trying fallback...');
+    // Split by double newlines or numbered sections
+    const sections = response.split(/\n\n+|\n(?=\d+\.)/);
+    sections.forEach((section, index) => {
+      if (section.trim() && section.length > 20) {
+        const lines = section.split('\n');
+        const topic = lines[0]?.replace(/^\d+\./, '').trim() || `Content Idea ${index + 1}`;
+        ideas.push({
+          topic: topic.substring(0, 100),
+          type: 'post',
+          platform: defaultPlatforms[index % defaultPlatforms.length],
+          message: section.substring(0, 200),
+          cta: 'Learn more'
+        });
+      }
+    });
+    console.log('✅ Fallback parsing created:', ideas.length, 'ideas');
+  }
+  
+  // Ensure all ideas have required fields
   return ideas.map((idea, index) => ({
     id: Date.now() + index,
-    ...idea,
+    topic: idea.topic || `Content idea ${index + 1}`,
+    type: idea.type || 'post',
+    platform: idea.platform || defaultPlatforms[platformIndex++ % defaultPlatforms.length],
+    message: idea.message || '',
+    cta: idea.cta || 'Learn more',
     businessId: businessProfile.user_id,
     status: 'pending',
     createdAt: new Date().toISOString()
@@ -220,8 +345,11 @@ const generateDefaultIdeas = (businessProfile, strategy, count) => {
 };
 
 // Generate full content from idea
-export const generateFullContent = async (idea, businessProfile) => {
-  const businessContext = `
+export const generateFullContent = async (idea, businessProfile, enrichedData = null) => {
+  // Use enhanced business context if available
+  const businessContext = enrichedData 
+    ? buildEnhancedBusinessContext(businessProfile, enrichedData)
+    : `
 Business: ${businessProfile.business_name}
 Industry: ${businessProfile.industry}
 Description: ${businessProfile.description}
@@ -232,47 +360,45 @@ Brand Voice: ${businessProfile.brand_voice?.tone} and ${businessProfile.brand_vo
 Brand Values: ${businessProfile.brand_values?.join(', ')}
   `.trim();
   
-  const prompt = `Create a ${idea.platform} post about: ${idea.topic}
+  const prompt = `Create a complete ${idea.platform} post about: ${idea.topic}
 
 ${idea.message ? `Key message: ${idea.message}` : ''}
 ${idea.cta ? `Call to action: ${idea.cta}` : ''}
 
-CRITICAL: Generate ONLY the actual post content. NO meta-commentary, NO explanations, NO "Here's your post" phrases.
+CRITICAL REQUIREMENTS:
+- Make it SPECIFIC to ${businessProfile.business_name} - reference their actual products, services, or expertise
+- Use insights from the business intelligence provided in the context
+- Make it engaging and valuable for their specific target audience
+- Match the brand voice (${businessProfile.brand_voice?.tone})
+- Include relevant emojis that fit the brand
+- Add 5-8 relevant hashtags (mix of industry and brand-specific)
+- Keep it platform-appropriate for ${idea.platform}
+- Include a clear call to action
+- Ready to post (no explanations, just the content)
+- DO NOT use generic templates - make it authentic to this brand
 
-Requirements:
-- Start directly with the post content
-- Match brand voice: ${businessProfile.brand_voice?.tone}
-- Include relevant emojis naturally
-- Add 5-8 relevant hashtags at the end
-- Platform-appropriate length for ${idea.platform}
-- Clear call to action
-- Engaging and valuable
-
-Write the post now (content only):`;
+Generate the complete post:`;
 
   try {
-    let content = await generateContentWithGemini(prompt, idea.platform, businessContext);
+    let content;
+    try {
+      console.log('Trying Gemini for full content...');
+      content = await generateContentWithGemini(prompt, idea.platform, businessContext);
+    } catch (geminiError) {
+      console.warn('Gemini failed, falling back to OpenAI:', geminiError.message);
+      content = await generateContentWithOpenAI(prompt, idea.platform);
+    }
     
-    // Clean up the content - remove meta-commentary
-    content = content
-      .replace(/^(Here's|Here is|Here are).*(post|content)[:\-\s]*/i, '')
-      .replace(/^(I've created|I created|Check out|Below is|This is).*(post|content)[:\-\s]*/i, '')
-      .replace(/^\*\*.*\*\*\s*/gm, '') // Remove markdown headers at start
-      .replace(/^---+\s*/gm, '') // Remove separator lines
-      .replace(/^###?\s+\*\*.*\*\*\s*/gm, '') // Remove markdown headers
-      .trim();
-    
-    // Generate image for all visual platforms
+    // Generate image if needed
     let imageUrl = null;
-    const visualPlatforms = ['instagram', 'facebook', 'linkedin', 'twitter'];
-    if (visualPlatforms.includes(idea.platform.toLowerCase()) || idea.type === 'image') {
+    const platform = idea.platform?.toLowerCase() || 'linkedin';
+    if (['instagram', 'facebook'].includes(platform) || idea.type === 'image') {
       try {
-        const imagePrompt = `${idea.topic}, professional ${businessProfile.brand_voice?.tone} style, ${businessProfile.industry} business, high quality`;
+        const imagePrompt = `Professional ${idea.topic} for ${businessProfile.business_name}, ${businessProfile.brand_voice?.tone} style`;
         const imageResult = await generateAIImage(imagePrompt, businessContext, 'professional');
         imageUrl = imageResult.imageUrl;
-        console.log('✅ Image generated for', idea.platform);
       } catch (imageError) {
-        console.log('⚠️ Image generation failed:', imageError.message);
+        console.log('Image generation skipped:', imageError.message);
       }
     }
     
@@ -301,129 +427,257 @@ export const scheduleContent = (contents, businessProfile, startDate = new Date(
   const postsPerWeek = strategy.postingFrequency;
   
   let currentDate = new Date(startDate);
-  let contentIndex = 0;
-  let weekdayIndex = 0;
+  currentDate.setHours(0, 0, 0, 0); // Start at beginning of day
   
-  // Schedule content over the next 4 weeks
-  while (contentIndex < contents.length && scheduled.length < contents.length) {
-    // Skip weekends for B2B, include for B2C
+  let contentIndex = 0;
+  let postsThisWeek = 0;
+  let currentWeekStart = new Date(currentDate);
+  
+  // Calculate days between posts
+  const daysInWeek = 7;
+  const daysPerPost = Math.floor(daysInWeek / postsPerWeek);
+  const remainder = daysInWeek % postsPerWeek;
+  
+  console.log(`📅 Scheduling strategy: ${postsPerWeek} posts/week across ${daysInWeek} days`);
+  
+  // Schedule content over multiple weeks
+  while (contentIndex < contents.length) {
     const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
     const isB2B = ['technology', 'finance', 'consulting', 'manufacturing'].includes(industry);
     
+    // Skip weekends for B2B industries
     if (isWeekend && isB2B) {
       currentDate.setDate(currentDate.getDate() + 1);
       continue;
     }
     
-    // Determine posting time
-    const timeIndex = weekdayIndex % bestTimes.length;
+    // Determine posting time (rotate through best times)
+    const timeIndex = contentIndex % bestTimes.length;
     const [hours, minutes] = bestTimes[timeIndex].split(':').map(Number);
     
     const scheduledDate = new Date(currentDate);
     scheduledDate.setHours(hours, minutes, 0, 0);
     
-    // Don't schedule in the past
+    // Only schedule if in the future
     if (scheduledDate > new Date()) {
       scheduled.push({
         ...contents[contentIndex],
         scheduledFor: scheduledDate.toISOString(),
         status: 'scheduled'
       });
+      console.log(`   Post ${contentIndex + 1}: ${scheduledDate.toLocaleDateString()} at ${hours}:${String(minutes).padStart(2, '0')}`);
       contentIndex++;
+      postsThisWeek++;
+    } else {
+      // If in the past, skip to tomorrow
+      currentDate.setDate(currentDate.getDate() + 1);
+      continue;
     }
     
-    weekdayIndex++;
-    
-    // Move to next day after posting required times
-    if (weekdayIndex >= postsPerWeek) {
-      weekdayIndex = 0;
-      currentDate.setDate(currentDate.getDate() + 1);
+    // Check if we've completed a week
+    const daysSinceWeekStart = Math.floor((currentDate - currentWeekStart) / (1000 * 60 * 60 * 24));
+    if (daysSinceWeekStart >= 7 || postsThisWeek >= postsPerWeek) {
+      // Start new week
+      postsThisWeek = 0;
+      currentWeekStart = new Date(currentDate);
+      currentWeekStart.setDate(currentWeekStart.getDate() + 1);
+      currentDate = new Date(currentWeekStart);
+    } else {
+      // Move to next posting day (spread posts evenly throughout week)
+      const skipDays = daysPerPost + (postsThisWeek < remainder ? 1 : 0);
+      currentDate.setDate(currentDate.getDate() + Math.max(1, skipDays));
     }
   }
+  
+  console.log(`✅ Scheduled ${scheduled.length} posts from ${scheduled[0]?.scheduledFor} to ${scheduled[scheduled.length - 1]?.scheduledFor}`);
   
   return scheduled;
 };
 
-// Auto-generate content calendar
-export const autoGenerateContentCalendar = async (businessProfile, weeks = 4, onProgress = null) => {
+// Auto-generate content calendar with brand intelligence
+export const autoGenerateContentCalendar = async (businessProfile, weeks = 4, options = {}) => {
   try {
     console.log('🤖 Starting automatic content calendar generation...');
     
-    // Step 1: Generate content ideas
+    const onProgress = options.onProgress || (() => {}); // Progress callback
+    const uploadedMedia = options.uploadedMedia || [];
+    
+    // Step 0: Use provided enriched data or gather new intelligence
+    onProgress(5, 'Initializing content generation...');
+    let enrichedData = options.enrichedData || null;
+    
+    if (!enrichedData && options.enableWebCrawling !== false) {
+      try {
+        onProgress(10, 'Gathering brand intelligence from the web...');
+        console.log('🔍 Gathering brand intelligence from the web...');
+        enrichedData = await enrichBusinessProfile(businessProfile);
+        console.log('✅ Brand intelligence gathered successfully!');
+      } catch (error) {
+        console.warn('⚠️ Web intelligence gathering failed, continuing with basic profile:', error.message);
+      }
+    } else if (enrichedData) {
+      console.log('✅ Using cached brand intelligence!');
+    }
+    
+    // Step 1: Generate content ideas with enriched data
+    onProgress(20, 'Generating content ideas...');
     const industry = businessProfile.industry || 'other';
     const strategy = industryStrategies[industry] || industryStrategies.other;
     const totalPosts = weeks * strategy.postingFrequency;
     
-    console.log(`📋 Generating ${totalPosts} content ideas for ${weeks} weeks...`);
-    if (onProgress) onProgress({ stage: 'ideas', current: 0, total: totalPosts });
+    console.log(`📊 Total posts needed: ${totalPosts}`);
+    console.log(`📸 User uploaded media: ${uploadedMedia.length}`);
     
-    const ideas = await generateContentIdeas(businessProfile, totalPosts);
-    console.log(`✅ Generated ${ideas.length} content ideas`);
+    // Calculate posts from media vs AI-generated
+    const mediaPostsCount = Math.min(uploadedMedia.length, totalPosts);
+    const aiGeneratedPostsCount = totalPosts - mediaPostsCount;
     
-    // Step 2: Generate full content for each idea (in batches to avoid overwhelming)
-    console.log('📝 Generating full content from ideas...');
-    if (onProgress) onProgress({ stage: 'content', current: 0, total: totalPosts });
+    console.log(`   - Posts with user media: ${mediaPostsCount}`);
+    console.log(`   - AI-generated posts: ${aiGeneratedPostsCount}`);
     
     const contents = [];
     
-    for (let i = 0; i < Math.min(ideas.length, totalPosts); i++) {
-      let retries = 0;
-      const maxRetries = 2;
+    // Step 2A: Generate posts from uploaded media first
+    if (uploadedMedia.length > 0) {
+      onProgress(25, `Creating posts from uploaded media...`);
+      console.log('📸 Generating posts from uploaded media...');
       
-      while (retries <= maxRetries) {
+      // Import generatePostFromMedia
+      const { generatePostFromMedia } = require('./visionAnalyzer');
+      
+      for (let i = 0; i < mediaPostsCount; i++) {
         try {
-          const content = await generateFullContent(ideas[i], businessProfile);
-          contents.push(content);
-          console.log(`✅ Generated content ${i + 1}/${totalPosts}`);
-          if (onProgress) onProgress({ stage: 'content', current: i + 1, total: totalPosts });
-          break; // Success, exit retry loop
-        } catch (error) {
-          retries++;
+          const media = uploadedMedia[i];
+          const progressPercent = 25 + Math.floor((i / totalPosts) * 30);
+          onProgress(progressPercent, `Creating post from media ${i + 1}/${mediaPostsCount}...`);
           
-          if (error.message.includes('503') || error.message.includes('overloaded')) {
-            if (retries <= maxRetries) {
-              console.log(`⏳ API overloaded, retrying in ${retries * 3} seconds... (${retries}/${maxRetries})`);
-              await new Promise(resolve => setTimeout(resolve, retries * 3000)); // Exponential backoff
-            } else {
-              console.error(`❌ Failed after ${maxRetries} retries for idea ${i}:`, error.message);
-              // Create a simple text-only post as fallback
-              contents.push({
-                content: `${ideas[i].topic}\n\n${ideas[i].message || 'Check out our latest updates!'}\n\n${ideas[i].cta || 'Learn more!'}`,
-                imageUrl: null,
-                platform: ideas[i].platform,
-                type: ideas[i].type,
-                scheduledFor: null,
-                status: 'generated',
-                ideaId: ideas[i].id
-              });
-            }
-          } else {
-            console.error(`❌ Failed to generate content for idea ${i}:`, error.message);
-            break; // Different error, don't retry
-          }
+          // Determine best platform for this media
+          const suggestedPlatforms = media.analysis.platforms || ['instagram', 'facebook'];
+          const platform = suggestedPlatforms[0];
+          
+          console.log(`   Creating ${platform} post from ${media.fileName}...`);
+          
+          // Generate caption using AI based on media analysis
+          const caption = await generatePostFromMedia(media.analysis, platform, businessProfile);
+          
+          // Upload media to storage and get URL
+          const mediaUrl = await uploadMediaToStorage(media.file, businessProfile.user_id);
+          
+          contents.push({
+            content: caption,
+            platform: platform,
+            type: media.fileType.startsWith('image/') ? 'image' : 'video',
+            imageUrl: mediaUrl,
+            status: 'generated',
+            source: 'user_media',
+            mediaFileName: media.fileName
+          });
+          
+          console.log(`✅ Created post ${i + 1}/${mediaPostsCount} from media`);
+          
+          // Small delay
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error(`Failed to create post from media ${i}:`, error);
         }
       }
+    }
+    
+    // Step 2B: Generate AI content ideas for remaining posts
+    if (aiGeneratedPostsCount > 0) {
+      onProgress(55, `Generating ${aiGeneratedPostsCount} additional content ideas...`);
+      console.log(`📝 Generating ${aiGeneratedPostsCount} AI content ideas...`);
+      const ideas = await generateContentIdeas(businessProfile, aiGeneratedPostsCount, enrichedData, options.userId || null);
       
-      // Small delay between requests
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Generate full content for each idea
+      for (let i = 0; i < Math.min(ideas.length, aiGeneratedPostsCount); i++) {
+        try {
+          // Calculate progress: 55% to 90% of progress bar
+          const progressPercent = 55 + Math.floor((i / aiGeneratedPostsCount) * 35);
+          onProgress(progressPercent, `Generating AI content ${i + 1}/${aiGeneratedPostsCount}...`);
+          
+          const content = await generateFullContent(ideas[i], businessProfile, enrichedData);
+          contents.push(content);
+          console.log(`Generated AI content ${i + 1}/${aiGeneratedPostsCount}`);
+        
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error(`Failed to generate AI content for idea ${i}:`, error);
+        }
+      }
+    }
+    
+    console.log(`\n📊 CONTENT GENERATION SUMMARY:`);
+    console.log(`   Total posts created: ${contents.length}`);
+    console.log(`   - From user media: ${mediaPostsCount}`);
+    console.log(`   - AI generated: ${contents.length - mediaPostsCount}`);
+    
+    if (contents.length === 0) {
+      throw new Error('Failed to generate any content. Please try again.');
     }
     
     // Step 3: Schedule content optimally
+    onProgress(95, 'Scheduling content...');
     console.log('Scheduling content...');
     const scheduledContent = scheduleContent(contents, businessProfile);
     
+    onProgress(100, `✅ Generated ${scheduledContent.length} posts!`);
     console.log(`✅ Generated and scheduled ${scheduledContent.length} posts!`);
     
     return {
       success: true,
-      ideas: ideas.length,
+      ideas: mediaPostsCount + aiGeneratedPostsCount,
       generated: contents.length,
       scheduled: scheduledContent.length,
       content: scheduledContent,
-      strategy: strategy
+      strategy: strategy,
+      enrichedData: enrichedData // Include enriched data in response
     };
   } catch (error) {
     console.error('Error in auto content generation:', error);
     throw error;
+  }
+};
+/**
+ * Upload media file to Supabase storage
+ * @param {File} file - File object
+ * @param {string} userId - User ID
+ * @returns {Promise<string>} - Public URL of uploaded media
+ */
+const uploadMediaToStorage = async (file, userId) => {
+  try {
+    const { supabase } = require('./supabase');
+    
+    // Create unique filename
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    // Upload to Supabase storage
+    const { data, error } = await supabase.storage
+      .from('media')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+    
+    if (error) {
+      console.error('Storage upload error:', error);
+      // Fallback: use object URL (temporary)
+      return URL.createObjectURL(file);
+    }
+    
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('media')
+      .getPublicUrl(fileName);
+    
+    console.log(`✅ Uploaded media to storage: ${fileName}`);
+    return urlData.publicUrl;
+    
+  } catch (error) {
+    console.error('Error uploading media:', error);
+    // Fallback to object URL
+    return URL.createObjectURL(file);
   }
 };

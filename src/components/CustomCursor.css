@@ -1,0 +1,71 @@
+/* Hide default cursor on body */
+body * {
+  cursor: none !important;
+}
+
+/* Main cursor circle */
+.custom-cursor {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(79, 70, 229, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+  z-index: 9999;
+  mix-blend-mode: difference;
+}
+
+/* Cursor dot in center */
+.custom-cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: rgba(79, 70, 229, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  z-index: 10000;
+}
+
+/* Hover state - expand cursor */
+.custom-cursor.hovering {
+  width: 60px;
+  height: 60px;
+  border-color: rgba(79, 70, 229, 0.8);
+  background: rgba(79, 70, 229, 0.1);
+}
+
+.custom-cursor-dot.hovering {
+  width: 12px;
+  height: 12px;
+  background: rgba(79, 70, 229, 1);
+}
+
+/* Animation for smooth following */
+@keyframes cursorPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.custom-cursor.hovering {
+  animation: cursorPulse 2s ease-in-out infinite;
+}
+
+/* Only apply on desktop */
+@media (max-width: 768px) {
+  .custom-cursor,
+  .custom-cursor-dot {
+    display: none;
+  }
+  
+  body * {
+    cursor: auto !important;
+  }
+}
