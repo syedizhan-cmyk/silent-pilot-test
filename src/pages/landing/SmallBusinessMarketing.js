@@ -12,7 +12,7 @@ const SmallBusinessMarketing = () => {
         title="Marketing Automation for Small Business | Affordable AI Tools - Silent Pilot"
         description="Affordable marketing automation for small businesses. Manage social media, email campaigns, and content creation in one platform. No agency needed. Start free."
         keywords="small business marketing automation, affordable marketing software, small business social media, email marketing for small business, marketing tools for startups"
-        url="https://silentpilot.app/small-business-marketing-automation"
+        url="https://silentpilot.org/small-business-marketing-automation"
       />
       
       <div className="landing-page">

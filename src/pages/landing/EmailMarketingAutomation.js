@@ -12,7 +12,7 @@ const EmailMarketingAutomation = () => {
         title="Email Marketing Automation Software | AI-Powered Campaigns - Silent Pilot"
         description="Create and automate email campaigns with AI. Build subscriber lists, design beautiful emails, and track performance. Perfect for small businesses and agencies."
         keywords="email marketing automation, automated email campaigns, email marketing software, email automation tool, drip campaigns, email newsletter automation"
-        url="https://silentpilot.app/email-marketing-automation"
+        url="https://silentpilot.org/email-marketing-automation"
       />
       
       <div className="landing-page">

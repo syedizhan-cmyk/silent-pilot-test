@@ -12,7 +12,7 @@ const SocialMediaAutomation = () => {
         title="Social Media Automation Software | Schedule & Auto-Post Content - Silent Pilot"
         description="Automate your social media marketing with AI-powered scheduling, content creation, and analytics. Post to Twitter, LinkedIn, and more platforms automatically. Free trial available."
         keywords="social media automation, social media scheduler, auto post social media, social media management software, automated social posting, content scheduling tool"
-        url="https://silentpilot.app/social-media-automation"
+        url="https://silentpilot.org/social-media-automation"
       />
       
       <div className="landing-page">

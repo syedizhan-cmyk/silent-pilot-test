@@ -5,8 +5,8 @@ const SEO = ({
   title = 'Silent Pilot - AI-Powered Marketing Automation',
   description = 'Automate your social media marketing, email campaigns, and content creation with AI. Silent Pilot helps businesses scale their digital presence effortlessly.',
   keywords = 'AI marketing automation, social media management, email campaigns, content creation, AI copywriting',
-  image = 'https://silentpilot.app/og-image.png',
-  url = 'https://silentpilot.app',
+  image = 'https://silentpilot.org/og-image.png',
+  url = 'https://silentpilot.org',
   type = 'website'
 }) => {
   return (

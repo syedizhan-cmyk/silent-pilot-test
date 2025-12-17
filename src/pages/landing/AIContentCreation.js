@@ -12,7 +12,7 @@ const AIContentCreation = () => {
         title="AI Content Creation Tool | Generate Marketing Content in Seconds - Silent Pilot"
         description="Generate blog posts, social media content, emails, and ads with AI. Save hours on content creation. Perfect for marketers, entrepreneurs, and agencies."
         keywords="AI content creation, AI copywriting, automated content generation, AI writing tool, marketing content generator, AI blog writer"
-        url="https://silentpilot.app/ai-content-creation"
+        url="https://silentpilot.org/ai-content-creation"
       />
       
       <div className="landing-page">
