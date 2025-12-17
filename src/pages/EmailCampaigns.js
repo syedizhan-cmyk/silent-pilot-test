@@ -356,21 +356,42 @@ function EmailCampaigns() {
     setGeneratingAI(true);
     try {
       const businessContext = profile ? `
-Business: ${profile.business_name}
+
+BUSINESS CONTEXT - CRITICAL: Tailor ALL content to this specific business:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Business Name: ${profile.business_name}
 Industry: ${profile.industry}
-Target Audience: ${profile.target_audience}
-Brand Voice: ${profile.brand_voice?.tone || 'Professional'}
+Website: ${profile.website || 'N/A'}
+${profile.business_description ? `Description: ${profile.business_description}` : ''}
+
+TARGET AUDIENCE:
+- Demographics: ${profile.target_audience?.demographics || 'N/A'}
+- Pain Points: ${profile.target_audience?.pain_points?.join(', ') || 'N/A'}
+- Interests: ${profile.target_audience?.interests?.join(', ') || 'N/A'}
+
+BRAND VOICE (MUST MATCH):
+- Tone: ${profile.brand_voice?.tone || 'Professional'}
+- Style: ${profile.brand_voice?.style || 'Informative'}
+- Keywords to use: ${profile.brand_voice?.keywords?.join(', ') || 'N/A'}
+
+PRODUCTS/SERVICES: ${profile.products_services || 'N/A'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       ` : '';
 
-      const fullPrompt = `Create an email campaign for: ${aiPrompt}
+      const fullPrompt = `Campaign Goal: ${aiPrompt}
 
 ${businessContext}
 
-Format your response EXACTLY like this:
-Subject: [compelling subject line]
-Preview: [preview text]
+CRITICAL INSTRUCTIONS:
+1. Use the EXACT HTML structure provided in the system prompt - DO NOT SKIP THE <img> TAG
+2. Replace [Business+Name] in image URL with: ${profile?.business_name?.replace(/\s+/g, '+') || 'Business'}
+3. Write headline about: ${aiPrompt}
+4. Reference: ${profile?.products_services || 'their products/services'}
+5. Target audience: ${profile?.target_audience?.demographics || 'general audience'}
+6. Brand tone: ${profile?.brand_voice?.tone || 'Professional'}
+7. Industry: ${profile?.industry || 'Business'} - pick matching color for the image (Blue=tech, Green=health, Red=food, Purple=creative)
 
-[HTML email body with professional styling]`;
+Your response MUST include the complete HTML with the <img> tag at the top. Do not skip it.`;
 
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: {
@@ -405,6 +426,64 @@ Preview: [preview text]
         body = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
   ${body.split('\n').map(line => `<p>${line}</p>`).join('\n  ')}
 </div>`;
+      }
+
+      // POST-PROCESSING: Force inject image if AI didn't include it
+      if (!body.includes('<img')) {
+        console.log('⚠️ AI did not include image. Injecting hero image...');
+        
+        // Determine color - use brand primary color if available, otherwise industry-based
+        let heroColor = '4A90E2'; // Default blue
+        
+        if (profile?.brand_colors?.primary) {
+          // Use brand primary color, remove the # if present
+          heroColor = profile.brand_colors.primary.replace('#', '');
+        } else {
+          // Fallback to industry-based colors
+          const industry = (profile?.industry || '').toLowerCase();
+          if (industry.includes('health') || industry.includes('fitness') || industry.includes('wellness')) {
+            heroColor = '2ECC71'; // Green
+          } else if (industry.includes('food') || industry.includes('restaurant')) {
+            heroColor = 'E74C3C'; // Red
+          } else if (industry.includes('creative') || industry.includes('design') || industry.includes('art')) {
+            heroColor = '9B59B6'; // Purple
+          } else if (industry.includes('finance') || industry.includes('tech')) {
+            heroColor = '3498DB'; // Blue
+          }
+        }
+        
+        const businessName = encodeURIComponent(profile?.business_name || 'Welcome');
+        const heroImage = `<img src="https://dummyimage.com/600x300/${heroColor}/ffffff&text=${businessName}" alt="${profile?.business_name || 'Hero'}" style="width:100%; max-width:600px; height:auto; display:block; margin:0;">`;
+        
+        // Inject at the beginning if there's a wrapping div, otherwise wrap everything
+        if (body.startsWith('<div')) {
+          body = body.replace(/(<div[^>]*>)/, `$1\n  ${heroImage}`);
+        } else {
+          body = `<div style="max-width:600px; margin:0 auto; font-family:Arial,sans-serif;">\n  ${heroImage}\n  ${body}\n</div>`;
+        }
+        
+        console.log('✅ Hero image injected');
+      }
+
+      // Apply brand colors if available in profile
+      if (profile?.brand_colors) {
+        const { primary, secondary, accent } = profile.brand_colors;
+        
+        // Replace common button/CTA colors with brand primary color
+        body = body.replace(/#007bff/gi, primary || '#007bff');
+        body = body.replace(/#0056b3/gi, primary || '#0056b3'); // Darker blue variant
+        
+        // Replace secondary colors
+        if (secondary) {
+          body = body.replace(/#6c757d/gi, secondary);
+        }
+        
+        // Replace accent/success colors
+        if (accent) {
+          body = body.replace(/#28a745/gi, accent);
+        }
+        
+        console.log('✅ Brand colors applied:', { primary, secondary, accent });
       }
 
       setNewCampaign({
@@ -817,14 +896,86 @@ Preview: [preview text]
               </div>
 
               <div className="form-group">
-                <label>Email Body</label>
-                <textarea
-                  rows="10"
-                  placeholder="Your email content (HTML supported)..."
-                  value={newCampaign.body}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, body: e.target.value })}
-                />
-                <small>💡 Tip: Use {'{first_name}'}, {'{last_name}'}, {'{email}'} for personalization</small>
+                <label>Email Content Preview</label>
+                
+                {/* Visual Preview - Always shown when content exists */}
+                {newCampaign.body ? (
+                  <>
+                    <div style={{
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      background: '#f9fafb',
+                      padding: '4px',
+                      minHeight: '300px',
+                      marginBottom: '12px'
+                    }}>
+                      <iframe 
+                        srcDoc={newCampaign.body}
+                        style={{
+                          width: '100%',
+                          height: '280px',
+                          border: 'none',
+                          borderRadius: '6px',
+                          background: 'white'
+                        }}
+                        sandbox="allow-same-origin allow-scripts"
+                      />
+                    </div>
+                    
+                    {/* Collapsible Advanced Editor Section */}
+                    <details style={{
+                      marginTop: '12px',
+                      padding: '10px',
+                      background: '#f9fafb',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px'
+                    }}>
+                      <summary style={{
+                        cursor: 'pointer',
+                        fontWeight: '500',
+                        color: '#6b7280',
+                        fontSize: '14px',
+                        userSelect: 'none'
+                      }}>
+                        ⚙️ Advanced: Edit HTML Code
+                      </summary>
+                      <div style={{marginTop: '12px'}}>
+                        <textarea
+                          rows="10"
+                          placeholder="Your email content (HTML supported)..."
+                          value={newCampaign.body}
+                          onChange={(e) => setNewCampaign({ ...newCampaign, body: e.target.value })}
+                          style={{
+                            fontFamily: 'monospace',
+                            fontSize: '12px',
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #374151',
+                            borderRadius: '4px',
+                            background: '#1f2937',
+                            color: '#f9fafb',
+                            resize: 'vertical'
+                          }}
+                        />
+                        <small style={{display: 'block', marginTop: '8px', color: '#6b7280', fontStyle: 'italic'}}>
+                          💡 Tip: Use {'{first_name}'}, {'{last_name}'}, {'{email}'} for personalization
+                        </small>
+                      </div>
+                    </details>
+                  </>
+                ) : (
+                  <div style={{
+                    padding: '40px',
+                    textAlign: 'center',
+                    border: '2px dashed #d1d5db',
+                    borderRadius: '8px',
+                    color: '#9ca3af'
+                  }}>
+                    <p style={{fontSize: '16px', marginBottom: '8px'}}>✨ No content yet</p>
+                    <p style={{fontSize: '14px'}}>Use <strong>AI Generate</strong> to create email content automatically</p>
+                    <p style={{fontSize: '12px', marginTop: '8px', color: '#9ca3af'}}>or manually add HTML in the advanced section below</p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="modal-footer">
@@ -933,9 +1084,9 @@ Preview: [preview text]
                 style={{width: '100%', marginTop: '10px'}}
               />
               {profile && (
-                <div style={{marginTop: '15px', padding: '10px', background: '#f5f5f5', borderRadius: '5px'}}>
-                  <strong>Using your business context:</strong>
-                  <p style={{fontSize: '14px', margin: '5px 0'}}>
+                <div style={{marginTop: '15px', padding: '12px', background: '#374151', borderRadius: '8px', border: '1px solid #4b5563'}}>
+                  <strong style={{color: '#f9fafb'}}>Using your business context:</strong>
+                  <p style={{fontSize: '14px', margin: '8px 0 0 0', color: '#d1d5db'}}>
                     {profile.business_name} | {profile.industry}
                   </p>
                 </div>

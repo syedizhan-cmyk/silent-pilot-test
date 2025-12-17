@@ -293,8 +293,9 @@
 
 .campaign-actions {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 4px;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 
@@ -901,23 +902,34 @@
   cursor: none;
 }
 
-/* Fix for action buttons - specific and safe */
+/* Modern clean action buttons - compact */
 .campaign-actions button.action-btn {
-  padding: 6px 12px !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
   display: inline-block !important;
   min-width: auto !important;
   width: auto !important;
-  background: #f3f4f6 !important;
-  border: 1px solid #9ca3af !important;
-  color: #1f2937 !important;
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  color: #f9fafb !important;
   font-weight: 500 !important;
+  border-radius: 6px !important;
+  cursor: none !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  white-space: nowrap !important;
 }
 
 .campaign-actions button.action-btn:hover:not(:disabled) {
-  background: rgba(79, 70, 229, 0.15) !important;
+  background: #4F46E5 !important;
   border-color: #4F46E5 !important;
-  color: #4F46E5 !important;
-  font-weight: 600 !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+.campaign-actions button.action-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: none !important;
 }

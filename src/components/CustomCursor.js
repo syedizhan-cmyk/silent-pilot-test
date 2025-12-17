@@ -6,21 +6,26 @@ const CustomCursor = () => {
   const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
+    let rafId = null;
+    let currentX = 0;
+    let currentY = 0;
+    
     const updatePosition = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
+      currentX = e.clientX;
+      currentY = e.clientY;
+      
+      if (rafId) return;
+      
+      rafId = requestAnimationFrame(() => {
+        setPosition({ x: currentX, y: currentY });
+        rafId = null;
+      });
     };
 
     const handleMouseOver = (e) => {
       const target = e.target;
-      // Only expand on major clickable elements, not small action buttons
-      if (
-        (target.tagName === 'A' && !target.classList.contains('action-btn')) ||
-        (target.classList.contains('clickable') && !target.classList.contains('action-btn'))
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
+      // Don't expand cursor - keep it consistent
+      setIsHovering(false);
     };
 
     window.addEventListener('mousemove', updatePosition);
