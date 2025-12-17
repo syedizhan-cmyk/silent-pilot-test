@@ -49,6 +49,12 @@ import Settings from './pages/Settings';
 // Auth Store
 import { useAuthStore } from './store/authStore';
 
+// SEO Landing Pages
+import SocialMediaAutomation from './pages/landing/SocialMediaAutomation';
+import EmailMarketingAutomation from './pages/landing/EmailMarketingAutomation';
+import AIContentCreation from './pages/landing/AIContentCreation';
+import SmallBusinessMarketing from './pages/landing/SmallBusinessMarketing';
+
 // Landing Page
 function LandingPage() {
   return (
@@ -82,6 +88,12 @@ function App() {
       <Routes>
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
+        
+        {/* SEO Landing Pages */}
+        <Route path="/social-media-automation" element={<SocialMediaAutomation />} />
+        <Route path="/email-marketing-automation" element={<EmailMarketingAutomation />} />
+        <Route path="/ai-content-creation" element={<AIContentCreation />} />
+        <Route path="/small-business-marketing-automation" element={<SmallBusinessMarketing />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
