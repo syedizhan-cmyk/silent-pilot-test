@@ -32,6 +32,7 @@ import AIResearch from './pages/AIResearch';
 import BulkMediaUpload from './pages/BulkMediaUpload';
 import AIMasterChat from './pages/AIMasterChat';
 import EmailCampaigns from './pages/EmailCampaigns';
+import CampaignDetailView from './pages/CampaignDetailView';
 import SEO from './pages/SEO';
 import Analytics from './pages/Analytics';
 import Leads from './pages/Leads';
@@ -130,6 +131,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardLayout><EmailCampaigns /></DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard/email/campaign/:campaignId" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout><CampaignDetailView /></DashboardLayout>
             </ProtectedRoute>
           } 
         />

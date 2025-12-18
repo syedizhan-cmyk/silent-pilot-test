@@ -96,14 +96,10 @@ function Login() {
             </div>
 
             <button type="submit" className="auth-button" disabled={loading}>
-              {loading ? (
-                <>
-                  <span className="spinner"></span>
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                {loading && <span className="spinner"></span>}
+                <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+              </span>
             </button>
           </form>
 

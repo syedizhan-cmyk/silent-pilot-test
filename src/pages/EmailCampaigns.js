@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useEmailCampaignsStore } from '../store/emailCampaignsStore';
 import { useBusinessProfileStore } from '../store/businessProfileStore';
@@ -7,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import './EmailCampaigns.css';
 
 function EmailCampaigns() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('campaigns');
   const user = useAuthStore((s) => s.user);
   const profile = useBusinessProfileStore((s) => s.profile);
@@ -614,7 +616,12 @@ Your response MUST include the complete HTML with the <img> tag at the top. Do n
           <div className="campaigns-grid">
             {console.log('🔍 Rendering campaigns. Count:', campaigns?.length, 'Using demo:', !campaigns?.length)}
             {(campaigns && campaigns.length > 0 ? campaigns : demoCampaigns).map(campaign => (
-              <div key={campaign.id} className="campaign-card">
+              <div 
+                key={campaign.id} 
+                className="campaign-card"
+                onClick={() => navigate(`/dashboard/email/campaign/${campaign.id}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="campaign-header">
                   <h3>{campaign.name}</h3>
                   <span className={`status-badge ${campaign.status}`}>
@@ -668,7 +675,7 @@ Your response MUST include the complete HTML with the <img> tag at the top. Do n
 
                 <div className="campaign-footer">
                   <div className="campaign-date">{campaign.date}</div>
-                  <div className="campaign-actions">
+                  <div className="campaign-actions" onClick={(e) => e.stopPropagation()}>
                     {campaign.status === 'draft' && (
                       <>
                         <button className="action-btn" onClick={() => handleSendCampaign(campaign, true)} title="Send Test Email" disabled={sending}>🧪 Test</button>
