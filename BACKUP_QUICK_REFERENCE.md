@@ -29,19 +29,19 @@ tar -xzf silentpilot-full-backup-20251209-125846.tar.gz \
 
 ### Create New Backup
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 ```
 
 ### Search for Code
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 grep -r "functionName" src/
 ```
 
 ### Search Documentation
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 grep -r "keyword" *.md
 ```
 
@@ -68,7 +68,7 @@ grep -r "keyword" *.md
 ### Your .env File (NOT in backup for security)
 **Save it encrypted**:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 openssl enc -aes-256-cbc -salt -in .env -out ~/.env.backup.encrypted
 ```
 
@@ -111,7 +111,7 @@ openssl enc -aes-256-cbc -d -in ~/.env.backup.encrypted -out .env
 ```bash
 cd ~/Desktop
 tar -xzf silentpilot-full-backup-*.tar.gz "Silent Pilot Website/path/to/file"
-cp "Silent Pilot Website/path/to/file" "Desktop/Silent Pilot Website/"
+cp "Silent Pilot Website/path/to/file" "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/"
 ```
 
 ### "I want to see old version of a file"
@@ -123,7 +123,7 @@ code "Silent Pilot Website/src/path/to/file"
 
 ### "I broke something, restore everything"
 ```bash
-mv "Desktop/Silent Pilot Website" "Desktop/Silent Pilot Website BROKEN"
+mv "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website" "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website BROKEN"
 cd ~/Desktop
 mkdir "Silent Pilot Website"
 tar -xzf silentpilot-full-backup-*.tar.gz -C "Silent Pilot Website"
@@ -152,7 +152,7 @@ npm start
 
 ### In Code
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Find where login is implemented
 grep -r "signIn\|login" src/store/
@@ -175,7 +175,7 @@ ls supabase/functions/
 
 ### In Documentation
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Find Twitter setup info
 grep -l "twitter" *.md
@@ -232,14 +232,14 @@ Silent Pilot Website/
 
 ### 1. **Use VS Code for Easy Navigation**
 ```bash
-code "Desktop/Silent Pilot Website"
+code "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website"
 # Press Cmd+P to quickly open any file
 # Press Cmd+Shift+F to search all files
 ```
 
 ### 2. **Set Up Git (Recommended)**
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 git init
 git add .
 git commit -m "Backup checkpoint"
@@ -249,7 +249,7 @@ git commit -m "Backup checkpoint"
 ### 3. **Weekly Backup Habit**
 ```bash
 # Run this every week:
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 ```
 

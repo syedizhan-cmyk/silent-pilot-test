@@ -49,7 +49,7 @@ const SmallBusinessMarketing = () => {
             <h2 style={{fontSize: '36px', textAlign: 'center', marginBottom: '20px'}}>
               Small Business Marketing Challenges
             </h2>
-            <p style={{textAlign: 'center', color: '#666', fontSize: '18px', marginBottom: '60px', maxWidth: '800px', margin: '0 auto 60px'}}>
+            <p style={{textAlign: 'center', color: '#1f2937', fontSize: '18px', marginBottom: '60px', maxWidth: '800px', margin: '0 auto 60px'}}>
               Sound familiar?
             </p>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px'}}>
@@ -80,7 +80,7 @@ const SmallBusinessMarketing = () => {
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px'}}>
               <div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px', color: '#fa709a'}}>Social Media Automation</h3>
-                <ul style={{color: '#666', lineHeight: '2', fontSize: '16px'}}>
+                <ul style={{color: '#1f2937', lineHeight: '2', fontSize: '16px'}}>
                   <li>Schedule posts to Twitter, LinkedIn, Facebook</li>
                   <li>AI-generated captions and hashtags</li>
                   <li>Visual content calendar</li>
@@ -89,7 +89,7 @@ const SmallBusinessMarketing = () => {
               </div>
               <div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px', color: '#fa709a'}}>Email Marketing</h3>
-                <ul style={{color: '#666', lineHeight: '2', fontSize: '16px'}}>
+                <ul style={{color: '#1f2937', lineHeight: '2', fontSize: '16px'}}>
                   <li>Build and grow your email list</li>
                   <li>AI-written email campaigns</li>
                   <li>Automated follow-up sequences</li>
@@ -98,7 +98,7 @@ const SmallBusinessMarketing = () => {
               </div>
               <div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px', color: '#fa709a'}}>Content Creation</h3>
-                <ul style={{color: '#666', lineHeight: '2', fontSize: '16px'}}>
+                <ul style={{color: '#1f2937', lineHeight: '2', fontSize: '16px'}}>
                   <li>Generate blog posts with AI</li>
                   <li>Create ad copy in seconds</li>
                   <li>Never run out of ideas</li>
@@ -119,12 +119,12 @@ const SmallBusinessMarketing = () => {
               <div style={{padding: '30px', background: '#fff3f3', borderRadius: '12px'}}>
                 <h3 style={{fontSize: '20px', marginBottom: '10px', color: '#e74c3c'}}>Hiring a Marketer</h3>
                 <p style={{fontSize: '32px', fontWeight: 'bold', color: '#e74c3c'}}>$4,000+/mo</p>
-                <p style={{color: '#666', fontSize: '14px'}}>Plus benefits</p>
+                <p style={{color: '#1f2937', fontSize: '14px'}}>Plus benefits</p>
               </div>
               <div style={{padding: '30px', background: '#f0fff4', borderRadius: '12px', border: '2px solid #27ae60'}}>
                 <h3 style={{fontSize: '20px', marginBottom: '10px', color: '#27ae60'}}>Silent Pilot</h3>
                 <p style={{fontSize: '32px', fontWeight: 'bold', color: '#27ae60'}}>$49/mo</p>
-                <p style={{color: '#666', fontSize: '14px'}}>Cancel anytime</p>
+                <p style={{color: '#1f2937', fontSize: '14px'}}>Cancel anytime</p>
               </div>
             </div>
             <button 

@@ -50,7 +50,7 @@ REACT_APP_REDIRECT_URI=https://silent-pilot-website-2ab1o4n9x-syed-izhan-ahmeds-
 
 Then redeploy:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 git add .
 git commit -m "Update redirect URI for production"
 vercel --prod --yes
@@ -150,25 +150,25 @@ To use a custom domain like `silentpilot.com`:
 
 ### Redeploy Frontend
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 vercel --prod --yes
 ```
 
 ### Deploy Edge Function
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 supabase functions deploy [function-name]
 ```
 
 ### Update Secrets
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 supabase secrets set KEY=value
 ```
 
 ### View Functions
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 supabase functions list
 ```
 

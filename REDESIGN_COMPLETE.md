@@ -228,7 +228,7 @@ Your website is now **100% redesigned** and ready to use! Here's what you can do
 
 ### 1. Test the Application
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm start
 ```
 

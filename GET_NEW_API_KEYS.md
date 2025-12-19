@@ -83,7 +83,7 @@ Once you have new keys:
 
 ### Method 1: Update .env file
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 nano .env  # or open in text editor
 ```
 
@@ -95,7 +95,7 @@ REACT_APP_GEMINI_API_KEY=AIzaYOUR-NEW-KEY-HERE
 
 Save and redeploy:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 git add .env
 git commit -m "Update API keys"
 vercel --prod --yes

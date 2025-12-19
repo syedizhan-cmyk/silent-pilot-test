@@ -195,7 +195,7 @@ export function quickConnectDemo(platform, userId)
 
 Run the app:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm start
 ```
 

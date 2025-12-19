@@ -470,7 +470,7 @@ bash DEPLOY_COMMANDS.sh  # Automated deployment
 ### Backup Methods
 1. **Git Repository** (HIGHLY RECOMMENDED):
    ```bash
-   cd "Desktop/Silent Pilot Website"
+   cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
    git init
    git add .
    git commit -m "Initial backup"
@@ -481,10 +481,10 @@ bash DEPLOY_COMMANDS.sh  # Automated deployment
 2. **Archive Files**:
    ```bash
    # Full backup
-   tar -czf silentpilot-backup-$(date +%Y%m%d).tar.gz "Desktop/Silent Pilot Website/"
+   tar -czf silentpilot-backup-$(date +%Y%m%d).tar.gz "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/"
    
    # Source code only
-   tar -czf silentpilot-src-$(date +%Y%m%d).tar.gz "Desktop/Silent Pilot Website/src/"
+   tar -czf silentpilot-src-$(date +%Y%m%d).tar.gz "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/src/"
    ```
 
 3. **Cloud Storage**:

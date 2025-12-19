@@ -63,7 +63,7 @@ cp "Silent Pilot Website Recovered/path/to/file" "Silent Pilot Website/path/to/f
 **Full Restoration**:
 ```bash
 # Backup current state first (just in case)
-mv "Desktop/Silent Pilot Website" "Desktop/Silent Pilot Website OLD"
+mv "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website" "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website OLD"
 
 # Extract backup
 cd ~/Desktop
@@ -71,7 +71,7 @@ mkdir "Silent Pilot Website"
 tar -xzf silentpilot-full-backup-[TIMESTAMP].tar.gz -C "Silent Pilot Website"
 
 # Reinstall dependencies
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm install
 
 # Copy your current .env file if you want to keep API keys
@@ -86,7 +86,7 @@ npm start
 **Recovery Without Rovo**:
 ```bash
 # You have ALL the documentation locally:
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Search for anything you need
 grep -r "search term" *.md
@@ -104,7 +104,7 @@ code .  # VS Code
 
 **Database Recovery**:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Run SQL files in this order:
 # 1. Login to Supabase dashboard
@@ -161,7 +161,7 @@ npm run build
 
 **Search & Find**:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Find where a function is defined
 grep -r "functionName" src/
@@ -239,14 +239,14 @@ src/pages/CreateContent.js   # Content creation
 # 4. Search for filename or content
 
 # Terminal search
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 grep -r "what you're looking for" .
 ```
 
 **Using VS Code** (Recommended):
 ```bash
 # Open project in VS Code
-code "Desktop/Silent Pilot Website"
+code "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website"
 
 # Press Cmd+Shift+F for global search
 # Search across all files instantly
@@ -330,7 +330,7 @@ chmod +x backup.sh
 
 **Initialize Git Repository**:
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Initialize repository
 git init
@@ -373,7 +373,7 @@ git push
 
 # Or use rsync to external drive
 rsync -av --exclude='node_modules' \
-  "Desktop/Silent Pilot Website" \
+  "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website" \
   /Volumes/ExternalDrive/Backups/
 ```
 

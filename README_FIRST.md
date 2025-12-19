@@ -22,7 +22,7 @@ All compilation errors have been resolved. Your website now has a complete moder
 ### Run Your Website:
 
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm install  # If you haven't already
 npm start    # Start development server
 ```
@@ -132,7 +132,7 @@ Read these files for more information:
 ## 🎯 Project Structure
 
 ```
-Desktop/Silent Pilot Website/
+Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/
 ├── src/
 │   ├── components/          # Landing & reusable components
 │   ├── pages/              # All 22 pages (JS + CSS)

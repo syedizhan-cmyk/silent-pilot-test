@@ -72,7 +72,7 @@ Open `AI_MEDIA_STUDIO_SQL.sql` in the project folder and copy all the SQL, then 
 If you have Supabase CLI configured:
 
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 supabase db execute --file AI_MEDIA_STUDIO_SQL.sql
 ```
 

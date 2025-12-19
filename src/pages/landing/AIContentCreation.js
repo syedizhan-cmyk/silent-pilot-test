@@ -61,7 +61,7 @@ const AIContentCreation = () => {
                 <div key={i} style={{padding: '30px', background: '#f9fafb', borderRadius: '12px', textAlign: 'center'}}>
                   <div style={{fontSize: '48px', marginBottom: '15px'}}>{item.icon}</div>
                   <h3 style={{fontSize: '20px', marginBottom: '10px'}}>{item.title}</h3>
-                  <p style={{color: '#666', lineHeight: '1.5'}}>{item.desc}</p>
+                  <p style={{color: '#1f2937', lineHeight: '1.5'}}>{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -97,7 +97,7 @@ const AIContentCreation = () => {
                   </div>
                   <div>
                     <h3 style={{fontSize: '24px', marginBottom: '10px'}}>{item.title}</h3>
-                    <p style={{color: '#666', fontSize: '18px', lineHeight: '1.6'}}>{item.desc}</p>
+                    <p style={{color: '#1f2937', fontSize: '18px', lineHeight: '1.6'}}>{item.desc}</p>
                   </div>
                 </div>
               ))}

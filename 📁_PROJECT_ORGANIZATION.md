@@ -7,7 +7,7 @@
 
 ## 📁 MAIN PROJECT
 
-**Location**: `~/Desktop/Silent Pilot Website/`
+**Location**: `~/Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/`
 
 ### Active Files (Keep All):
 - ✅ All source code (`/src`)
@@ -174,7 +174,7 @@
 
 ## 📊 FILE COUNTS
 
-**Main Project**: `~/Desktop/Silent Pilot Website/`
+**Main Project**: `~/Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/`
 - Source files: 223+
 - Documentation: 136 files
 - Configuration: 10+ files

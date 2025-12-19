@@ -145,7 +145,7 @@ Safari → Preferences → Privacy → Manage Website Data → Remove All
 
 ### 2. Start Development Server
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm start
 ```
 

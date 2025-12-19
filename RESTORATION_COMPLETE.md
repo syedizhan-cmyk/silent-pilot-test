@@ -102,7 +102,7 @@ useContentStore()   // Posts & content
 
 ### 1. Start the App
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm start
 ```
 

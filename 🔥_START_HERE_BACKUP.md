@@ -99,7 +99,7 @@ cd ~/Desktop
 tar -xzf silentpilot-full-backup-20251209-125846.tar.gz \
   "Silent Pilot Website/path/to/file"
 cp "Silent Pilot Website/path/to/file" \
-  "Desktop/Silent Pilot Website/"
+  "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/"
 ```
 
 ### 🔄 Scenario 2: "I want to restore everything"
@@ -116,20 +116,20 @@ npm start
 
 ### 🔍 Scenario 3: "Where is the login code?"
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 grep -r "signIn" src/store/
 # Found in: src/store/authStore.js
 ```
 
 ### 📖 Scenario 4: "How do I setup Twitter?"
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 cat TWITTER_SETUP_GUIDE.md
 ```
 
 ### 💾 Scenario 5: "Create a new backup"
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 ```
 
@@ -226,7 +226,7 @@ npm start
 
 **Option 1 - Encrypt it:**
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 openssl enc -aes-256-cbc -salt -in .env -out ~/.env.backup.encrypted
 # Store the encrypted file safely
 ```
@@ -263,7 +263,7 @@ See `.env.example` for complete list!
 
 ### Search Your Code
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Find any function
 grep -r "functionName" src/
@@ -283,7 +283,7 @@ ls src/pages/
 
 ### Search Documentation
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 
 # Find specific topic
 grep -r "keyword" *.md
@@ -301,7 +301,7 @@ ls *DEBUG*.md *FIX*.md *TROUBLESHOOT*.md
 ### Using VS Code (Recommended)
 ```bash
 # Open entire project
-code "Desktop/Silent Pilot Website"
+code "Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website"
 
 # Then use:
 # Cmd+P = Quick file open
@@ -324,7 +324,7 @@ Date: December 9, 2024
 ### Create New Backups
 ```bash
 # Automated script (recommended)
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 
 # Manual backup
@@ -391,7 +391,7 @@ tar -tzf silentpilot-full-backup-20251209-125846.tar.gz | head -20
 
 ### 1. **Initialize Git (Highly Recommended)**
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 git init
 git add .
 git commit -m "Initial backup"
@@ -403,7 +403,7 @@ git push -u origin main
 ### 2. **Weekly Backup Routine**
 ```bash
 # Every Monday morning:
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 # Upload to Google Drive/Dropbox
 ```
@@ -522,7 +522,7 @@ Verify your backup is complete:
 ### Search Documentation
 ```bash
 # Find anything you need:
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 grep -r "what you're looking for" *.md
 ```
 
@@ -562,7 +562,7 @@ grep -r "what you're looking for" *.md
 
 ### Weekly (Recommended)
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 ./backup.sh
 # Upload to cloud
 ```

@@ -53,21 +53,21 @@ const EmailMarketingAutomation = () => {
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>🤖</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>AI-Generated Content</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Write compelling emails in seconds with AI. No copywriting skills needed.
                 </p>
               </div>
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>🎯</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>Smart Segmentation</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Target the right audience with personalized messages that drive action.
                 </p>
               </div>
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>📊</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>Real-Time Analytics</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Track opens, clicks, and conversions. Optimize campaigns for better ROI.
                 </p>
               </div>
@@ -92,7 +92,7 @@ const EmailMarketingAutomation = () => {
               ].map((useCase, i) => (
                 <div key={i} style={{padding: '30px', background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb'}}>
                   <h3 style={{fontSize: '20px', marginBottom: '10px', color: '#f5576c'}}>{useCase.title}</h3>
-                  <p style={{color: '#666', lineHeight: '1.6'}}>{useCase.desc}</p>
+                  <p style={{color: '#1f2937', lineHeight: '1.6'}}>{useCase.desc}</p>
                 </div>
               ))}
             </div>

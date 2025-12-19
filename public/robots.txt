@@ -9,4 +9,4 @@ Disallow: /signup
 Disallow: /reset-password
 
 # Sitemap
-Sitemap: https://silentpilot.org/sitemap.xml
+Sitemap: https://www.silentpilot.org/sitemap.xml

@@ -54,21 +54,21 @@ const SocialMediaAutomation = () => {
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>⏱️</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>Save 10+ Hours Per Week</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Schedule a month of content in under an hour. No more daily posting stress.
                 </p>
               </div>
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>📈</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>Grow Your Audience</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Consistent posting builds engagement. Our AI helps you post at optimal times.
                 </p>
               </div>
               <div style={{textAlign: 'center'}}>
                 <div style={{fontSize: '48px', marginBottom: '20px'}}>🤖</div>
                 <h3 style={{fontSize: '24px', marginBottom: '15px'}}>AI Content Creation</h3>
-                <p style={{color: '#666', lineHeight: '1.6'}}>
+                <p style={{color: '#1f2937', lineHeight: '1.6'}}>
                   Generate engaging posts in seconds. Never run out of content ideas again.
                 </p>
               </div>
@@ -94,7 +94,7 @@ const SocialMediaAutomation = () => {
                 <div key={i} style={{padding: '30px', background: '#f9fafb', borderRadius: '12px'}}>
                   <div style={{fontSize: '36px', marginBottom: '15px'}}>{feature.icon}</div>
                   <h3 style={{fontSize: '20px', marginBottom: '10px'}}>{feature.title}</h3>
-                  <p style={{color: '#666', lineHeight: '1.5'}}>{feature.desc}</p>
+                  <p style={{color: '#1f2937', lineHeight: '1.5'}}>{feature.desc}</p>
                 </div>
               ))}
             </div>

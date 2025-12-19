@@ -63,7 +63,7 @@ Your Silent Pilot website has been **completely redesigned** with a modern, prof
 ### 1. Start the Development Server
 
 ```bash
-cd "Desktop/Silent Pilot Website"
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/Silent\ Pilot\ Website
 npm install  # If you haven't already
 npm start
 ```
@@ -94,7 +94,7 @@ All pages now have the modern design:
 ## 📂 PROJECT STRUCTURE
 
 ```
-Desktop/Silent Pilot Website/
+Library/Mobile Documents/com~apple~CloudDocs/Silent Pilot Website/
 ├── src/
 │   ├── components/
 │   │   ├── Header.js/css
