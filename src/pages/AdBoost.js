@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TrendingUp } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import './AdBoost.css';
@@ -48,7 +49,10 @@ function AdBoost() {
     <div className="ad-boost-v2">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Ad Boost</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <TrendingUp className="header-icon" size={32} />
+            Ad Boost
+          </h1>
           <p className="text-secondary mt-2">Create and manage paid advertising campaigns</p>
         </div>
       </div>

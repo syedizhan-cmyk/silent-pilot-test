@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import './theme.css';
+import './theme-variables.css';
+import './design-system.css';
 import CustomCursor from './components/CustomCursor';
 
 // Landing Page Components
@@ -21,6 +23,7 @@ import ScrollToTop from './components/ScrollToTop';
 // Auth Components
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Onboarding from './pages/Onboarding';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Dashboard Components
@@ -39,7 +42,7 @@ import Leads from './pages/Leads';
 import Campaigns from './pages/Campaigns';
 import ContentLibrary from './pages/ContentLibrary';
 import SocialConnect from './pages/SocialConnect';
-import BusinessProfile from './pages/BusinessProfile';
+import BusinessProfile from './pages/BusinessProfileOptimized';
 import AIMediaStudio from './pages/AIMediaStudio';
 import AutoPilot from './pages/AutoPilot';
 import AdBoost from './pages/AdBoost';
@@ -99,6 +102,11 @@ function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/onboarding" element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        } />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
 
         {/* Protected Dashboard Routes */}

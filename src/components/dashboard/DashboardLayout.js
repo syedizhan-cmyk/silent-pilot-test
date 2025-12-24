@@ -3,8 +3,32 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useSocialStore } from '../../store/socialStore';
 import { startScheduler } from '../../scheduler/scheduler';
+import { 
+  LayoutDashboard, 
+  Bot, 
+  Building2, 
+  PenTool, 
+  Palette, 
+  Calendar, 
+  TrendingUp, 
+  Link2, 
+  Mail, 
+  Search, 
+  BarChart3, 
+  Users, 
+  Target, 
+  BookOpen,
+  Bell,
+  Settings,
+  LogOut,
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  User
+} from 'lucide-react';
 import './DashboardLayout.css';
 import ThemeToggle from '../ThemeToggle';
+import Logo from '../Logo';
 
 function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -30,20 +54,20 @@ function DashboardLayout({ children }) {
   }, [user]);
 
   const menuItems = [
-    { path: '/dashboard', icon: '📊', label: 'Dashboard' },
-    { path: '/dashboard/autopilot', icon: '🤖', label: 'Auto-Pilot', isNew: true },
-    { path: '/dashboard/business-profile', icon: '🏢', label: 'Business Profile' },
-    { path: '/dashboard/create', icon: '✍️', label: 'Create Content' },
-    { path: '/dashboard/media-studio', icon: '🎨', label: 'AI Media Studio' },
-    { path: '/dashboard/calendar', icon: '📅', label: 'Calendar' },
-    { path: '/dashboard/ad-boost', icon: '📢', label: 'Ad Boost' },
-    { path: '/dashboard/social', icon: '🔗', label: 'Social Accounts' },
-    { path: '/dashboard/email', icon: '📧', label: 'Email Campaigns' },
-    { path: '/dashboard/seo', icon: '🔍', label: 'SEO & Research' },
-    { path: '/dashboard/analytics', icon: '📈', label: 'Analytics' },
-    { path: '/dashboard/leads', icon: '👥', label: 'Leads' },
-    { path: '/dashboard/campaigns', icon: '🎯', label: 'Campaigns' },
-    { path: '/dashboard/content', icon: '📚', label: 'Content Library' }
+    { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+    { path: '/dashboard/autopilot', icon: <Bot size={20} />, label: 'Auto-Pilot', isNew: true },
+    { path: '/dashboard/business-profile', icon: <Building2 size={20} />, label: 'Business Profile' },
+    { path: '/dashboard/create', icon: <PenTool size={20} />, label: 'Create Content' },
+    { path: '/dashboard/media-studio', icon: <Palette size={20} />, label: 'AI Media Studio' },
+    { path: '/dashboard/calendar', icon: <Calendar size={20} />, label: 'Calendar' },
+    { path: '/dashboard/ad-boost', icon: <TrendingUp size={20} />, label: 'Ad Boost' },
+    { path: '/dashboard/social', icon: <Link2 size={20} />, label: 'Social Accounts' },
+    { path: '/dashboard/email', icon: <Mail size={20} />, label: 'Email Campaigns' },
+    { path: '/dashboard/seo', icon: <Search size={20} />, label: 'SEO & Research' },
+    { path: '/dashboard/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
+    { path: '/dashboard/leads', icon: <Users size={20} />, label: 'Leads' },
+    { path: '/dashboard/campaigns', icon: <Target size={20} />, label: 'Campaigns' },
+    { path: '/dashboard/content', icon: <BookOpen size={20} />, label: 'Content Library' }
   ];
 
   return (
@@ -53,12 +77,12 @@ function DashboardLayout({ children }) {
         <div className="sidebar-header">
           <Link to="/dashboard/ai-chat" className="logo-link">
             <div className="dashboard-logo">
-              <span className="logo-icon">✈️</span>
+              <Logo size="medium" variant="default" />
               {sidebarOpen && <span className="logo-text">Silent Pilot</span>}
             </div>
           </Link>
           <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            {sidebarOpen ? '◁' : '▷'}
+            {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
         </div>
 
@@ -87,7 +111,7 @@ function DashboardLayout({ children }) {
         <div className="sidebar-footer">
           <div className="user-profile">
             <div className="user-avatar">
-              {user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() || '👤'}
+              {user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() || <User size={20} />}
             </div>
             {sidebarOpen && (
               <div className="user-info">
@@ -108,7 +132,7 @@ function DashboardLayout({ children }) {
                 navigate('/login');
               }}
             >
-              <span>🚪</span>
+              <LogOut size={18} />
               <span>Logout</span>
             </button>
           )}
@@ -120,15 +144,17 @@ function DashboardLayout({ children }) {
         {/* Top Bar */}
         <header className="top-bar">
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            ☰
+            <Menu size={24} />
           </button>
           <div className="top-bar-right">
             <ThemeToggle />
             <Link to="/dashboard/notifications" className="icon-btn" title="Notifications">
               <span className="notification-badge">3</span>
-              🔔
+              <Bell size={20} />
             </Link>
-            <Link to="/dashboard/settings" className="icon-btn" title="Settings">⚙️</Link>
+            <Link to="/dashboard/settings" className="icon-btn" title="Settings">
+              <Settings size={20} />
+            </Link>
             <Link to="/" className="back-to-home-btn">
               ← Back to Home
             </Link>

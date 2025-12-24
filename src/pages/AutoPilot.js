@@ -7,6 +7,7 @@ import { autoGenerateContentCalendar } from '../lib/autoContentGenerator';
 import { enrichBusinessProfile } from '../lib/brandIntelligence';
 import { supabase } from '../lib/supabase';
 import { analyzeMediaBatch } from '../lib/visionAnalyzer';
+import { Bot, Sparkles, Brain, Calendar, Settings as SettingsIcon, Target } from 'lucide-react';
 import './AutoPilot.css';
 
 export default function AutoPilot() {
@@ -317,7 +318,7 @@ export default function AutoPilot() {
     return (
       <div className="autopilot-page">
         <div className="setup-required">
-          <h1>🤖 Silent Pilot - Auto-Pilot Mode</h1>
+          <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
           <div className="warning-box">
             <h2>⚠️ Business Profile Required</h2>
             <p>To activate Auto-Pilot, please complete your Business Profile first.</p>
@@ -334,7 +335,7 @@ export default function AutoPilot() {
   return (
     <div className="autopilot-page">
       <div className="page-header">
-        <h1>🤖 Silent Pilot - Auto-Pilot Mode</h1>
+        <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
         <p>Fully automated content generation, scheduling, and posting</p>
       </div>
 
@@ -427,7 +428,7 @@ export default function AutoPilot() {
       {/* Brand Intelligence Status */}
       {settings.enableWebCrawling && (
         <div className="info-section brand-intelligence-section">
-          <h2>🧠 Brand Intelligence</h2>
+          <h2><Brain size={24} className="section-icon" /> Brand Intelligence</h2>
           <div className="intelligence-status">
             {crawlingWeb ? (
               <div className="crawling-indicator">
@@ -463,7 +464,7 @@ export default function AutoPilot() {
 
       {/* How It Works */}
       <div className="info-section">
-        <h2>🎯 How Auto-Pilot Works</h2>
+        <h2><Target size={24} className="section-icon" /> How Auto-Pilot Works</h2>
         <div className="features-grid">
           <div className="feature-card">
             <span className="feature-icon">🔍</span>
@@ -500,7 +501,7 @@ export default function AutoPilot() {
 
       {/* Settings */}
       <div className="settings-section">
-        <h2>⚙️ Auto-Pilot Settings</h2>
+        <h2><SettingsIcon size={24} className="section-icon" /> Auto-Pilot Settings</h2>
         
         <div className="setting-group">
           <label>Content Generation Window</label>
@@ -665,7 +666,7 @@ export default function AutoPilot() {
       {generatedContent.length > 0 && (
         <div className="calendar-preview">
           <div className="calendar-preview-header">
-            <h2>📅 Upcoming Content Schedule</h2>
+            <h2><Calendar size={24} className="section-icon" /> Upcoming Content Schedule</h2>
             <span className="content-count-badge">
               {generatedContent.filter(content => new Date(content.scheduled_for) > new Date()).length} posts
             </span>

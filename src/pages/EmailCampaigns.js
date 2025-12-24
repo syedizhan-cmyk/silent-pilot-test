@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useEmailCampaignsStore } from '../store/emailCampaignsStore';
@@ -530,7 +531,7 @@ Your response MUST include the complete HTML with the <img> tag at the top. Do n
     <div className="email-campaigns-page">
       <div className="page-header">
         <div>
-          <h1>Email Campaigns</h1>
+          <h1><Mail className="header-icon" size={32} /> Email Campaigns</h1>
           <p>Create, manage, and track your email marketing campaigns</p>
         </div>
         <div style={{display: 'flex', gap: '10px'}}>

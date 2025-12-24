@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Target } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import './Campaigns.css';
@@ -106,7 +107,10 @@ function Campaigns() {
     <div className="campaigns-v2">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Campaigns</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <Target className="header-icon" size={32} />
+            Campaigns
+          </h1>
           <p className="text-secondary mt-2">Manage your marketing campaigns</p>
         </div>
         <button className="btn btn-primary" onClick={() => {

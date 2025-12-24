@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { Settings as SettingsIcon, User, Lock, Bell, Shield, CreditCard } from 'lucide-react';
 import './Settings.css';
 
 function Settings() {
@@ -138,7 +139,7 @@ function Settings() {
     <div className="settings-v2">
       <div className="settings-header">
         <div>
-          <h1>Settings</h1>
+          <h1><SettingsIcon className="header-icon" size={32} /> Settings</h1>
           <p>Manage your account preferences and security</p>
         </div>
       </div>
@@ -154,11 +155,11 @@ function Settings() {
       <div className="settings-layout">
         <div className="settings-nav">
           {[
-            { id: 'profile', icon: '👤', label: 'Profile' },
-            { id: 'security', icon: '🔒', label: 'Security' },
-            { id: 'notifications', icon: '🔔', label: 'Notifications' },
-            { id: 'privacy', icon: '🛡️', label: 'Privacy' },
-            { id: 'billing', icon: '💳', label: 'Billing' }
+            { id: 'profile', icon: <User size={20} />, label: 'Profile' },
+            { id: 'security', icon: <Lock size={20} />, label: 'Security' },
+            { id: 'notifications', icon: <Bell size={20} />, label: 'Notifications' },
+            { id: 'privacy', icon: <Shield size={20} />, label: 'Privacy' },
+            { id: 'billing', icon: <CreditCard size={20} />, label: 'Billing' }
           ].map(tab => (
             <button
               key={tab.id}

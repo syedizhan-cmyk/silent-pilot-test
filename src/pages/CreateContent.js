@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
+import { PenTool } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { createABTest, autoOptimizeContent } from '../lib/abTestingEngine';
@@ -420,7 +421,10 @@ Ready to boost your productivity? Try it today!
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Create Content</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <PenTool className="header-icon" size={32} />
+            Create Content
+          </h1>
           <p className="text-secondary mt-2">Create engaging posts for your social media platforms</p>
         </div>
         <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>

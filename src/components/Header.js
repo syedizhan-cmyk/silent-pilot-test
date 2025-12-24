@@ -19,7 +19,10 @@ function Header() {
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="header-content">
-          <Logo />
+          <div className="logo">
+            <Logo size="large" variant="default" />
+            <span className="logo-text">Silent Pilot</span>
+          </div>
           
           <nav className="nav">
             <a href="#features">Features</a>

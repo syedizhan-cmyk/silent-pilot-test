@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BarChart3 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useContentStore } from '../store/contentStore';
 import { useAnalyticsStore } from '../store/analyticsStore';
@@ -98,7 +99,10 @@ function Analytics() {
     <div className="analytics-v2">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Analytics</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <BarChart3 className="header-icon" size={32} />
+            Analytics
+          </h1>
           <p className="text-secondary mt-2">Track your performance across all platforms</p>
         </div>
         <div className="header-actions">

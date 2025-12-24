@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Users } from 'lucide-react';
 import { useLeadsStore } from '../store/leadsStore';
 import { useAuthStore } from '../store/authStore';
 import './Leads.css';
@@ -135,7 +136,10 @@ function Leads() {
     <div className="leads-v2">
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Leads</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <Users className="header-icon" size={32} />
+            Leads
+          </h1>
           <p className="text-secondary mt-2">Manage and track your leads</p>
         </div>
         <div className="header-actions">

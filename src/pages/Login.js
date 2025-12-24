@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useBusinessProfileStore } from '../store/businessProfileStore';
 import './Auth.css';
 
 function Login() {
@@ -10,6 +11,7 @@ function Login() {
   const [error, setError] = useState('');
   
   const signIn = useAuthStore((state) => state.signIn);
+  const { loadProfile } = useBusinessProfileStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,15 +20,22 @@ function Login() {
     setLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       
       if (error) {
         setError(error);
         setLoading(false);
       } else {
-        // Navigate immediately on success
-        navigate('/dashboard');
-        // Set loading to false after navigation
+        // Check if user has completed onboarding
+        const profile = await loadProfile(data.user.id);
+        
+        if (profile && profile.onboarding_completed) {
+          // User has completed onboarding, go to dashboard
+          navigate('/dashboard');
+        } else {
+          // User hasn't completed onboarding, redirect there
+          navigate('/onboarding');
+        }
         setLoading(false);
       }
     } catch (err) {
@@ -96,10 +105,8 @@ function Login() {
             </div>
 
             <button type="submit" className="auth-button" disabled={loading}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                {loading && <span className="spinner"></span>}
-                <span>{loading ? 'Signing in...' : 'Sign In'}</span>
-              </span>
+              {loading && <span className="spinner"></span>}
+              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
             </button>
           </form>
 

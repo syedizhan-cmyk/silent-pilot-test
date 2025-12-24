@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BookOpen } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import './ContentLibrary.css';
@@ -147,7 +148,7 @@ function ContentLibrary() {
       {/* Header */}
       <div className="cl-header">
         <div className="cl-header-content">
-          <h1>Content Library</h1>
+          <h1><BookOpen className="header-icon" size={32} /> Content Library</h1>
           <p>Manage all your marketing content in one place</p>
         </div>
         <button className="btn-primary">

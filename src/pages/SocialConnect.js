@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useSocialStore } from '../store/socialStore';
 import './SocialConnect.css';
@@ -140,7 +141,7 @@ function SocialConnect() {
     <div className="social-connect-page">
       <div className="page-header">
         <div>
-          <h1>Social Media Accounts</h1>
+          <h1><Link2 className="header-icon" size={32} /> Social Media Accounts</h1>
           <p>Connect your social media accounts to enable auto-posting</p>
         </div>
       </div>

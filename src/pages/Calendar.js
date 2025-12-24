@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
 import { useAuthStore } from '../store/authStore';
@@ -157,7 +158,10 @@ function Calendar() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Content Calendar</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <CalendarIcon className="header-icon" size={32} />
+            Content Calendar
+          </h1>
           <p className="text-secondary mt-2">Plan and schedule your content across all platforms</p>
         </div>
         <div className="header-actions">

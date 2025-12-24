@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Search } from 'lucide-react';
 import './SEO.css';
 
 function SEO() {
@@ -37,7 +38,7 @@ function SEO() {
     <div className="seo-page">
       <div className="page-header">
         <div>
-          <h1>SEO Dashboard</h1>
+          <h1><Search className="header-icon" size={32} /> SEO Dashboard</h1>
           <p>Monitor and improve your search engine optimization</p>
         </div>
         <button className="btn btn-primary">🔍 Run Full Audit</button>

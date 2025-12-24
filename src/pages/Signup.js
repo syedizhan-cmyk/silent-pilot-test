@@ -41,9 +41,10 @@ function Signup() {
       } else {
         setSuccess(true);
         setLoading(false);
+        // Redirect to onboarding instead of login
         setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+          navigate('/onboarding');
+        }, 1500);
       }
     } catch (err) {
       console.error('Signup error:', err);
@@ -61,8 +62,8 @@ function Signup() {
             <div className="success-message">
               <div className="success-icon">✅</div>
               <h2>Account Created!</h2>
-              <p>Please check your email to verify your account.</p>
-              <p className="redirect-text">Redirecting to login...</p>
+              <p>Let's set up your workspace...</p>
+              <p className="redirect-text">Taking you to onboarding...</p>
             </div>
           </div>
         </div>

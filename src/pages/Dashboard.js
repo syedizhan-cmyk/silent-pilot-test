@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { useContentStore } from '../store/contentStore';
 import { useLeadsStore } from '../store/leadsStore';
 import { useAnalyticsStore } from '../store/analyticsStore';
+import { LayoutDashboard } from 'lucide-react';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -183,7 +184,10 @@ function Dashboard() {
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <h1 className="text-4xl font-bold gradient-text">Dashboard</h1>
+          <h1 className="text-4xl font-bold gradient-text">
+            <LayoutDashboard className="header-icon" size={32} />
+            Dashboard
+          </h1>
           <p className="text-secondary mt-2">Welcome back! Here's what's happening with your marketing.</p>
         </div>
         <div className="flex gap-4 items-center">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Palette } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useBusinessProfileStore } from '../store/businessProfileStore';
 import {
@@ -529,7 +530,7 @@ export default function AIMediaStudio() {
   return (
     <div className="ai-media-studio">
       <div className="page-header">
-        <h1>🎨 AI Media Studio</h1>
+        <h1><Palette className="header-icon" size={32} /> AI Media Studio</h1>
         <p>Generate images, videos, infographics, and more with AI</p>
         {!profile && (
           <div className="warning-banner">
