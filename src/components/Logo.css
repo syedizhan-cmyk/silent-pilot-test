@@ -1,67 +1,75 @@
-/* Silent Pilot Logo Styles */
-
-.logo-container {
+.silent-pilot-logo {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.logo-container:hover {
-  transform: scale(1.05);
+  justify-content: center;
 }
 
 .logo-svg {
-  color: rgba(255, 255, 255, 0.8);
-  overflow: visible;
+  color: var(--text-primary);
+  width: 100%;
+  height: 100%;
 }
 
-.logo-text {
-  font-size: 20px;
-  font-weight: 700;
+/* Size Variants */
+.logo-small {
+  width: 40px;
+  height: 40px;
+}
+
+.logo-medium {
+  width: 56px;
+  height: 56px;
+}
+
+.logo-large {
+  width: 64px;
+  height: 64px;
+}
+
+/* Variant Styles */
+.logo-default {
+  /* default styling */
+}
+
+.logo-white {
   color: white;
-  white-space: nowrap;
 }
 
-/* Airplane animation on hover */
-.logo-container:hover .airplane {
-  animation: fly-forward 0.5s ease-out forwards;
+.logo-gradient {
+  /* gradient styling */
 }
 
-@keyframes fly-forward {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(8px);
-  }
+/* Airplane Animation */
+.logo-airplane {
+  transition: transform 0.3s ease;
 }
 
-/* Speed lines continuous animation */
-.speed-lines line {
-  opacity: 0;
-  animation: speed-line-move 1.5s ease-in-out infinite;
+.silent-pilot-logo:hover .logo-airplane {
+  transform: translateX(4px);
 }
 
-.speed-lines .line-1 {
+/* Motion Lines Animation */
+.motion-lines .motion-line {
+  animation: motion-line-float 1.5s ease-in-out infinite;
+}
+
+.motion-lines .line-1 {
   animation-delay: 0s;
 }
 
-.speed-lines .line-2 {
+.motion-lines .line-2 {
   animation-delay: 0.2s;
 }
 
-.speed-lines .line-3 {
+.motion-lines .line-3 {
   animation-delay: 0.4s;
 }
 
-/* Faster animation on hover */
-.logo-container:hover .speed-lines line {
+.silent-pilot-logo:hover .motion-lines .motion-line {
   animation-duration: 0.8s;
 }
 
-@keyframes speed-line-move {
+@keyframes motion-line-float {
   0% {
     transform: translateX(0);
     opacity: 0;
@@ -75,11 +83,13 @@
   }
 }
 
-/* Wing fade on hover */
-.airplane path {
+/* Wing animation on hover */
+.wing-top,
+.wing-bottom {
   transition: opacity 0.3s ease;
 }
 
-.logo-container:hover .airplane path {
-  opacity: 1 !important;
+.silent-pilot-logo:hover .wing-top,
+.silent-pilot-logo:hover .wing-bottom {
+  opacity: 1;
 }
