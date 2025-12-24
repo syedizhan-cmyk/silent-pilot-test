@@ -1,78 +1,85 @@
 /* Silent Pilot Logo Styles */
 
-.silent-pilot-logo {
+.logo-container {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
+  gap: 12px;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
 
-.logo:hover {
+.logo-container:hover {
   transform: scale(1.05);
 }
 
 .logo-svg {
-  width: 100%;
-  height: 100%;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.8);
+  overflow: visible;
 }
 
-/* Animated Elements */
-.logo-airplane {
-  transition: transform 0.3s ease;
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
 }
 
-.logo:hover .logo-airplane {
-  transform: translateX(8px);
+/* Airplane animation on hover */
+.logo-container:hover .airplane {
+  animation: fly-forward 0.5s ease-out forwards;
 }
 
-.motion-lines {
-  opacity: 1;
+@keyframes fly-forward {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8px);
+  }
 }
 
-.motion-lines line {
-  animation: speed-line 1.5s ease-in-out infinite;
-  color: rgba(255, 255, 255, 0.6);
+/* Speed lines continuous animation */
+.speed-lines line {
+  opacity: 0;
+  animation: speed-line-move 1.5s ease-in-out infinite;
 }
 
-.motion-lines line:nth-child(1) {
+.speed-lines .line-1 {
   animation-delay: 0s;
 }
 
-.motion-lines line:nth-child(2) {
+.speed-lines .line-2 {
   animation-delay: 0.2s;
 }
 
-.motion-lines line:nth-child(3) {
+.speed-lines .line-3 {
   animation-delay: 0.4s;
 }
 
-.logo:hover .motion-lines line {
+/* Faster animation on hover */
+.logo-container:hover .speed-lines line {
   animation-duration: 0.8s;
 }
 
-/* Animations */
-@keyframes speed-line {
+@keyframes speed-line-move {
   0% {
     transform: translateX(0);
     opacity: 0;
   }
-  50% {
+  30% {
     opacity: 0.8;
   }
   100% {
-    transform: translateX(-15px);
+    transform: translateX(-20px);
     opacity: 0;
   }
 }
 
-/* Wing animation on hover */
-.logo:hover path {
+/* Wing fade on hover */
+.airplane path {
+  transition: opacity 0.3s ease;
+}
+
+.logo-container:hover .airplane path {
   opacity: 1 !important;
 }

@@ -3,8 +3,14 @@ import './Logo.css';
 
 function Logo() {
   return (
-    <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style={{ width: '40px', height: '40px', flexShrink: 0 }}>
+    <div className="logo-container">
+      <svg 
+        viewBox="0 0 200 200" 
+        xmlns="http://www.w3.org/2000/svg" 
+        className="logo-svg"
+        width="40"
+        height="40"
+      >
         <defs>
           <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#667eea" />
@@ -12,8 +18,8 @@ function Logo() {
           </linearGradient>
         </defs>
         
-        {/* Paper airplane shape */}
-        <g className="logo-airplane">
+        {/* Paper airplane body */}
+        <g className="airplane">
           <path 
             d="M 40 100 L 160 100 L 180 90 L 160 100 L 180 110 Z" 
             fill="url(#logo-gradient)"
@@ -35,19 +41,14 @@ function Logo() {
           />
         </g>
         
-        {/* Motion lines */}
-        <g className="motion-lines">
-          <line x1="20" y1="90" x2="35" y2="90" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
-          <line x1="10" y1="100" x2="30" y2="100" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-          <line x1="20" y1="110" x2="35" y2="110" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+        {/* Animated motion lines */}
+        <g className="speed-lines">
+          <line x1="20" y1="90" x2="35" y2="90" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="line-1" />
+          <line x1="10" y1="100" x2="30" y2="100" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="line-2" />
+          <line x1="20" y1="110" x2="35" y2="110" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="line-3" />
         </g>
       </svg>
-      <span style={{ 
-        fontSize: '20px', 
-        fontWeight: '700',
-        color: 'white',
-        whiteSpace: 'nowrap'
-      }}>Silent Pilot</span>
+      <span className="logo-text">Silent Pilot</span>
     </div>
   );
 }
