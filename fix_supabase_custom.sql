@@ -100,7 +100,7 @@ CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON public.campaigns(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_social_accounts_user_id ON public.social_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON public.user_subscriptions(user_id);
-CREATE INDEX IF NOT EXISTS idx.user_preferences_user_id ON public.user_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON public.user_preferences(user_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_user_id ON public.analytics(user_id);
 
 -- Campaign relationship indexes
