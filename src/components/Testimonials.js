@@ -5,50 +5,50 @@ function Testimonials() {
   const testimonials = [
     {
       name: 'Sarah Johnson',
-      role: 'Product Manager',
-      company: 'TechCorp',
+      role: 'Marketing Director',
+      company: 'TechStyle Co',
       avatar: '👩‍💼',
-      content: 'Silent Pilot has transformed how our team works. The AI automation saves us hours every day, and the insights are incredibly valuable.',
+      content: 'Silent Pilot transformed our social media strategy. We went from posting 3 times a week to daily content across 5 platforms. Engagement is up 200%!',
       rating: 5
     },
     {
       name: 'Michael Chen',
       role: 'Founder & CEO',
-      company: 'StartupHub',
+      company: 'GrowLocal',
       avatar: '👨‍💻',
-      content: 'Best productivity tool I\'ve used in years. The seamless integration with our existing tools made adoption super easy.',
+      content: 'As a small business owner, I don\'t have time for social media. Silent Pilot handles everything - from content creation to scheduling. It\'s like having a full marketing team!',
       rating: 5
     },
     {
       name: 'Emily Rodriguez',
-      role: 'Marketing Director',
-      company: 'GrowthLabs',
+      role: 'Social Media Manager',
+      company: 'Brand Boost',
       avatar: '👩‍🎨',
-      content: 'The analytics dashboard gives us insights we never had before. It\'s like having a data analyst on our team 24/7.',
+      content: 'The AI content creation is incredible. I can generate a month\'s worth of posts in under an hour. The analytics help me understand what works best.',
       rating: 5
     },
     {
       name: 'David Kim',
-      role: 'Software Engineer',
-      company: 'DevForce',
+      role: 'E-commerce Owner',
+      company: 'ShopSmart',
       avatar: '👨‍🔬',
-      content: 'I was skeptical at first, but Silent Pilot\'s AI is genuinely helpful. It learns from my workflow and adapts perfectly.',
+      content: 'Our email campaigns have never performed better. The automation and targeting features helped us triple our conversion rate in just 2 months.',
       rating: 5
     },
     {
       name: 'Lisa Thompson',
-      role: 'Operations Manager',
-      company: 'EfficiencyCo',
+      role: 'Marketing Consultant',
+      company: 'Growth Agency',
       avatar: '👩‍💼',
-      content: 'The automation features alone are worth it. We\'ve reduced manual tasks by 60% and can focus on strategic work.',
+      content: 'I manage social media for 8 clients. Silent Pilot makes it effortless. The bulk scheduling and AI assistance save me 20+ hours per week.',
       rating: 5
     },
     {
       name: 'James Wilson',
-      role: 'CTO',
-      company: 'InnovateTech',
+      role: 'Digital Strategist',
+      company: 'Impact Digital',
       avatar: '👨‍💼',
-      content: 'Security and privacy were our main concerns, but Silent Pilot exceeded our expectations. Great product and support!',
+      content: 'The AutoPilot feature is game-changing. Set your strategy once and let AI handle the rest. Our clients are seeing consistent growth month over month.',
       rating: 5
     }
   ];
@@ -89,16 +89,16 @@ function Testimonials() {
 
         <div className="testimonials-stats">
           <div className="stat-item">
-            <div className="stat-number">50,000+</div>
-            <div className="stat-label">Happy Users</div>
+            <div className="stat-number">500+</div>
+            <div className="stat-label">Businesses Growing</div>
           </div>
           <div className="stat-item">
-            <div className="stat-number">4.9/5</div>
+            <div className="stat-number">4.8/5</div>
             <div className="stat-label">Average Rating</div>
           </div>
           <div className="stat-item">
-            <div className="stat-number">1M+</div>
-            <div className="stat-label">Tasks Automated</div>
+            <div className="stat-number">10M+</div>
+            <div className="stat-label">Posts Scheduled</div>
           </div>
         </div>
       </div>

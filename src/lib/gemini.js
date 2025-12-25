@@ -153,13 +153,13 @@ CRITICAL INSTRUCTIONS:
   // TIER 1: Try Gemini (Best quality, but may have quota issues)
   if (!workingProvider || workingProvider === 'gemini') {
     try {
-      console.log('🚀 TIER 1: Attempting Gemini 2.5 Flash...');
+      console.log('🚀 TIER 1: Attempting Gemini 1.5 Flash...');
       
       if (!apiKey) {
         throw new Error('Gemini API key is missing');
       }
       
-      const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       const result = await model.generateContent(fullPrompt);
       const response = await result.response;
@@ -234,7 +234,7 @@ export const optimizeForSEOWithGemini = async (content, keywords) => {
     }
     
     // Use same confirmed working model
-    const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `You are an SEO expert. Optimize this content for search engines while maintaining readability and engagement. Include these keywords naturally: ${keywords.join(', ')}\n\nContent to optimize: ${content}`;
     

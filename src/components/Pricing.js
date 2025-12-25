@@ -7,47 +7,47 @@ function Pricing() {
   const plans = [
     {
       name: 'Starter',
-      description: 'Perfect for individuals getting started',
+      description: 'Perfect for solopreneurs and small businesses',
       monthlyPrice: 0,
       yearlyPrice: 0,
       features: [
-        '5 AI requests per day',
-        'Basic automation',
+        '10 posts per month',
+        '2 social media accounts',
+        'Basic AI content generation',
         'Email support',
-        '1 GB storage',
-        'Community access'
+        'Content calendar'
       ],
       highlighted: false
     },
     {
       name: 'Professional',
-      description: 'For professionals who need more power',
+      description: 'For growing businesses and teams',
       monthlyPrice: 29,
       yearlyPrice: 290,
       features: [
-        'Unlimited AI requests',
-        'Advanced automation',
+        'Unlimited posts',
+        '10 social media accounts',
+        'Advanced AI content creation',
+        'Email marketing campaigns',
+        'Analytics & insights',
         'Priority support',
-        '50 GB storage',
-        'Custom integrations',
-        'Analytics dashboard',
         'Team collaboration'
       ],
       highlighted: true
     },
     {
       name: 'Enterprise',
-      description: 'For large teams and organizations',
+      description: 'For large teams and agencies',
       monthlyPrice: 99,
       yearlyPrice: 990,
       features: [
         'Everything in Professional',
-        'Dedicated account manager',
+        'Unlimited social accounts',
+        'White-label solution',
         'Custom AI training',
-        'Unlimited storage',
-        'Advanced security',
-        'SLA guarantee',
-        'On-premise deployment'
+        'Dedicated account manager',
+        'Advanced security & compliance',
+        'API access'
       ],
       highlighted: false
     }

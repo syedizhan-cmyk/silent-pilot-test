@@ -187,6 +187,11 @@ export const getPerformanceOverview = async (userId) => {
       recentPosts: stats.slice(-10).reverse()
     };
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Performance analytics tables not yet created. This is optional and will be available once you have post data.');
+      return null;
+    }
     console.error('Error getting performance overview:', error);
     throw error;
   }
@@ -215,6 +220,11 @@ export const getTopPerformingContent = async (userId, limit = 10) => {
     if (error) throw error;
     return data;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Top content analytics not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting top content:', error);
     throw error;
   }
@@ -234,6 +244,11 @@ export const getThemePerformance = async (userId) => {
     if (error) throw error;
     return data;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Theme performance analytics not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting theme performance:', error);
     throw error;
   }
@@ -297,10 +312,10 @@ const generateAIInsights = async (overview, topContent, themes) => {
   const prompt = `Analyze this content performance data and provide 3-5 actionable insights:
 
 OVERVIEW:
-- Total Posts: ${overview.totalPosts}
-- Average Engagement: ${overview.avgEngagementRate}%
-- Top Platform: ${overview.topPlatform}
-- Trend: ${overview.trend}
+- Total Posts: ${overview?.totalPosts || 0}
+- Average Engagement: ${overview?.avgEngagementRate || 0}%
+- Top Platform: ${overview?.topPlatform || 'N/A'}
+- Trend: ${overview?.trend || 'N/A'}
 
 TOP PERFORMING CONTENT:
 ${topContent.map((c, i) => `
@@ -380,6 +395,11 @@ export const getActiveInsights = async (userId) => {
     if (error) throw error;
     return data;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Insights analytics not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting insights:', error);
     throw error;
   }
@@ -450,6 +470,11 @@ export const getPerformanceByPlatform = async (userId) => {
 
     return platformStats;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Platform performance analytics not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting platform performance:', error);
     throw error;
   }
@@ -473,6 +498,11 @@ export const getEngagementOverTime = async (userId, days = 30) => {
     if (error) throw error;
     return data;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Engagement timeline not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting engagement over time:', error);
     throw error;
   }
@@ -555,7 +585,7 @@ export const getContentRecommendations = async (userId) => {
     }
 
     // Recommend based on trend
-    if (overview.trend === 'declining') {
+    if (overview && overview.trend === 'declining') {
       recommendations.push({
         type: 'strategy',
         priority: 'high',
@@ -577,6 +607,11 @@ export const getContentRecommendations = async (userId) => {
 
     return recommendations;
   } catch (error) {
+    // Suppress error if table doesn't exist (optional analytics feature)
+    if (error?.code === 'PGRST205') {
+      console.warn('Content recommendations not yet available. This feature activates after you publish posts.');
+      return [];
+    }
     console.error('Error getting recommendations:', error);
     return [];
   }

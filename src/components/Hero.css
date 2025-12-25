@@ -339,3 +339,300 @@
     display: none;
   }
 }
+
+/* Social Preview Styles */
+.social-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-post {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.preview-post:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.platform-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.facebook-badge {
+  background: #1877F2;
+}
+
+.facebook-badge:hover {
+  background: #0d65d9;
+  transform: scale(1.05);
+}
+
+.schedule-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.schedule-time svg {
+  opacity: 0.7;
+}
+
+.post-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.post-image-placeholder {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(88, 101, 242, 0.8) 0%, 
+    rgba(255, 115, 179, 0.6) 50%, 
+    rgba(252, 70, 107, 0.8) 100%);
+  opacity: 0.7;
+}
+
+.preview-shapes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+.shape-1 {
+  width: 120px;
+  height: 120px;
+  top: -40px;
+  right: -40px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.shape-2 {
+  width: 80px;
+  height: 80px;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.shape-3 {
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.12);
+  animation: float-shape 3s ease-in-out infinite;
+}
+
+@keyframes float-shape {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.preview-text {
+  position: relative;
+  z-index: 1;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 0 20px;
+}
+
+.post-stats {
+  display: flex;
+  gap: 24px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.post-stats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.post-stats span:hover {
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
+
+.post-stats svg {
+  opacity: 0.8;
+}
+
+.queue-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  gap: 12px;
+}
+
+.queue-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.queue-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.queue-dot.active {
+  background: #27C93F;
+  box-shadow: 0 0 12px rgba(39, 201, 63, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.queue-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.queue-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #27C93F;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(39, 201, 63, 0.1);
+  border-radius: 6px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.card-title svg {
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Enhance existing float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Add subtle glow to visual card */
+.visual-card {
+  position: relative;
+}
+
+.visual-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.3), rgba(255, 115, 179, 0.3));
+  border-radius: 18px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.visual-card:hover::before {
+  opacity: 1;
+}
+

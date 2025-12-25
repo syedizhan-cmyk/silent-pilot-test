@@ -11,10 +11,10 @@ function CTA() {
           </div>
           
           <h2 className="cta-title">
-            Ready to boost your productivity?
+            Ready to transform your marketing?
           </h2>
           <p className="cta-description">
-            Join thousands of professionals who have already transformed their workflow with Silent Pilot
+            Join hundreds of businesses growing their online presence with AI-powered automation
           </p>
           
           <div className="cta-actions">

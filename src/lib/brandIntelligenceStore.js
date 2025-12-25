@@ -46,6 +46,8 @@ export const useBrandIntelligenceStore = create((set, get) => ({
           user_id: userId,
           enriched_data: enrichedData,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         })
         .select()
         .single();

@@ -4,34 +4,34 @@ import './Features.css';
 function Features() {
   const features = [
     {
-      icon: '🤖',
-      title: 'AI-Powered Automation',
-      description: 'Let AI handle repetitive tasks while you focus on what matters most.'
+      icon: '📱',
+      title: 'Social Media Automation',
+      description: 'Schedule and publish content across all major platforms automatically. Never miss a posting opportunity.'
     },
     {
-      icon: '⚡',
-      title: 'Lightning Fast',
-      description: 'Experience instant responses and real-time processing with our optimized infrastructure.'
+      icon: '✨',
+      title: 'AI Content Creation',
+      description: 'Generate engaging posts, captions, and visuals with AI. Create months of content in minutes.'
     },
     {
-      icon: '🔒',
-      title: 'Secure & Private',
-      description: 'Your data is encrypted end-to-end and never shared with third parties.'
-    },
-    {
-      icon: '🎯',
-      title: 'Smart Insights',
-      description: 'Get actionable insights and recommendations powered by advanced analytics.'
-    },
-    {
-      icon: '🔄',
-      title: 'Seamless Integration',
-      description: 'Connect with your favorite tools and platforms effortlessly.'
+      icon: '📧',
+      title: 'Email Marketing',
+      description: 'Design, automate, and track email campaigns that convert. Build lasting relationships with your audience.'
     },
     {
       icon: '📊',
-      title: 'Advanced Analytics',
-      description: 'Track your productivity and gain deep insights into your workflow.'
+      title: 'Analytics & Insights',
+      description: 'Track performance across all channels. Get actionable insights to optimize your marketing strategy.'
+    },
+    {
+      icon: '🎨',
+      title: 'AI Media Studio',
+      description: 'Create and edit stunning visuals with AI-powered tools. Professional content without the designer price tag.'
+    },
+    {
+      icon: '🚀',
+      title: 'AutoPilot Marketing',
+      description: 'Set it and forget it. Let AI run your entire marketing strategy while you focus on growing your business.'
     }
   ];
 
@@ -41,10 +41,10 @@ function Features() {
         <div className="features-header">
           <h2 className="section-title">
             Everything you need to
-            <span className="gradient-text"> succeed</span>
+            <span className="gradient-text"> grow your business</span>
           </h2>
           <p className="section-description">
-            Powerful features designed to supercharge your productivity and streamline your workflow
+            Powerful marketing automation tools designed to save time, increase engagement, and drive results
           </p>
         </div>
 

@@ -7,8 +7,8 @@ import { autoGenerateContentCalendar } from '../lib/autoContentGenerator';
 import { enrichBusinessProfile } from '../lib/brandIntelligence';
 import { supabase } from '../lib/supabase';
 import { analyzeMediaBatch } from '../lib/visionAnalyzer';
-import { Bot, Sparkles, Brain, Calendar, Settings as SettingsIcon, Target } from 'lucide-react';
-import './AutoPilot.css';
+import { Bot } from 'lucide-react';
+import './AutoPilot-v2.css';
 
 export default function AutoPilot() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function AutoPilot() {
   const [generating, setGenerating] = useState(false);
   const [crawlingWeb, setCrawlingWeb] = useState(false);
   const [generationProgress, setGenerationProgress] = useState({ current: 0, total: 0, message: '' });
-  const [showAllContent, setShowAllContent] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
     enabled: false,
     contentWeeks: 4,
@@ -125,14 +125,101 @@ export default function AutoPilot() {
     }
   };
 
-  const handleEnableAutoPilot = async () => {
+
+  // Check if we have enough scheduled content for the configured period
+  const checkContentLevel = () => {
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + (settings.contentWeeks * 7));
+    
+    const scheduledPostsInPeriod = generatedContent.filter(c => {
+      const postDate = new Date(c.scheduled_for);
+      return c.status === 'scheduled' && postDate > now && postDate <= futureDate;
+    }).length;
+    
+    // Calculate expected posts (assuming ~2 posts per day per platform)
+    const expectedPosts = settings.contentWeeks * 7 * 2 * settings.platforms.length;
+    
+    return {
+      current: scheduledPostsInPeriod,
+      expected: expectedPosts,
+      isSufficient: scheduledPostsInPeriod >= (expectedPosts * 0.8) // 80% of expected
+    };
+  };
+
+  const handleToggleAutoPilot = async () => {
+    const newState = !autoPilotEnabled;
+    
+    if (newState) {
+      // Turning ON - just enable the setting, don't generate content yet
+      if (!profile) {
+        alert('Please complete your Business Profile first!');
+        return;
+      }
+
+      try {
+        await supabase
+          .from('autopilot_settings')
+          .upsert({
+            user_id: user.id,
+            settings: { ...settings, enabled: true },
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+        
+        setAutoPilotEnabled(true);
+        setSettings({ ...settings, enabled: true });
+        
+        // Check if we need to generate content
+        const contentLevel = checkContentLevel();
+        if (!contentLevel.isSufficient) {
+          const generateNow = window.confirm(
+            `Auto-Pilot is now ON! You don't have enough content scheduled yet.\n\nGenerate ${settings.contentWeeks} weeks of content now?\n\nCurrent: ${contentLevel.current} posts\nExpected: ${contentLevel.expected} posts`
+          );
+          
+          if (generateNow) {
+            await handleGenerateAdditionalContent();
+          }
+        } else {
+          alert('✅ Auto-Pilot activated! You have sufficient content scheduled. The system will monitor and auto-generate as needed.');
+        }
+      } catch (error) {
+        console.error('Error enabling auto-pilot:', error);
+        alert('Error activating Auto-Pilot: ' + error.message);
+      }
+    } else {
+      // Turning OFF
+      try {
+        await supabase
+          .from('autopilot_settings')
+          .upsert({
+            user_id: user.id,
+            settings: { ...settings, enabled: false },
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+        
+        setAutoPilotEnabled(false);
+        setSettings({ ...settings, enabled: false });
+        setGenerating(false);
+        alert('✓ Auto-Pilot deactivated. Your scheduled posts remain intact.');
+      } catch (error) {
+        console.error('Error disabling auto-pilot:', error);
+        alert('Error deactivating Auto-Pilot: ' + error.message);
+      }
+    }
+  };
+
+  const handleGenerateAdditionalContent = async () => {
     if (!profile) {
       alert('Please complete your Business Profile first!');
       return;
     }
 
     setGenerating(true);
-    setGenerationProgress({ current: 0, total: 100, message: 'Initializing Auto-Pilot...' });
+    setGenerationProgress({ current: 0, total: 100, message: 'Initializing content generation...' });
     try {
       // Enrich business profile with web intelligence if enabled
       let currentEnrichedData = enrichedData;
@@ -144,7 +231,7 @@ export default function AutoPilot() {
           currentEnrichedData = await enrichBusinessProfile(profile);
           console.log('📊 Enriched data received:', currentEnrichedData);
           await saveEnrichedData(user.id, currentEnrichedData);
-          console.log('✅ Brand intelligence saved! (saveEnrichedData updates store automatically)');
+          console.log('✅ Brand intelligence saved!');
         } catch (error) {
           console.warn('Web crawling failed, continuing without enriched data:', error);
           currentEnrichedData = null;
@@ -153,18 +240,17 @@ export default function AutoPilot() {
         }
       }
       
-      // Generate content calendar with enriched data and user ID for performance learning
+      // Generate content calendar
       const result = await autoGenerateContentCalendar(profile, settings.contentWeeks, {
-        enableWebCrawling: false, // Already done above
-        userId: user.id, // Pass user ID for performance insights
-        enrichedData: currentEnrichedData, // IMPORTANT: Pass the enriched data!
-        uploadedMedia: uploadedMedia, // Pass user's uploaded media
+        enableWebCrawling: false,
+        userId: user.id,
+        enrichedData: currentEnrichedData,
+        uploadedMedia: uploadedMedia,
         onProgress: (percent, message) => {
           setGenerationProgress({ current: percent, total: 100, message });
         }
       });
       
-      // Save enriched data from result if we got new data
       if (result.enrichedData && !currentEnrichedData) {
         console.log('💾 Saving enriched data from generation result...');
         await saveEnrichedData(user.id, result.enrichedData);
@@ -188,48 +274,26 @@ export default function AutoPilot() {
       
       if (error) throw error;
       
-      // Save settings
-      await supabase
-        .from('autopilot_settings')
-        .upsert({
-          user_id: user.id,
-          settings: { ...settings, enabled: true },
-          updated_at: new Date().toISOString()
-        });
-      
-      setAutoPilotEnabled(true);
-      setSettings({ ...settings, enabled: true });
-      
-      const enrichmentMsg = currentEnrichedData ? '\n\n✨ Enhanced with real business intelligence from your website and online presence!' : '';
-      alert(`🎉 Auto-Pilot Activated!\n\n${result.scheduled} posts scheduled over ${settings.contentWeeks} weeks!${enrichmentMsg}`);
+      alert(`✅ Generated ${result.scheduled} additional posts over ${settings.contentWeeks} weeks!`);
       
       loadScheduledContent();
     } catch (error) {
-      console.error('Error enabling auto-pilot:', error);
-      alert('Error activating Auto-Pilot: ' + error.message);
+      console.error('Error generating content:', error);
+      alert('Error generating content: ' + error.message);
     }
     setGenerating(false);
     setGenerationProgress({ current: 0, total: 0, message: '' });
   };
 
-  const handleDisableAutoPilot = async () => {
-    if (window.confirm('Are you sure you want to disable Auto-Pilot? Scheduled posts will remain but auto-regeneration will stop.')) {
-      await supabase
-        .from('autopilot_settings')
-        .upsert({
-          user_id: user.id,
-          settings: { ...settings, enabled: false },
-          updated_at: new Date().toISOString()
-        });
-      
-      setAutoPilotEnabled(false);
-      setSettings({ ...settings, enabled: false });
-    }
+  const handleCancelGeneration = () => {
+    setGenerating(false);
+    setGenerationProgress({ current: 0, total: 0, message: '' });
   };
 
   const handleRegenerateContent = async () => {
-    if (window.confirm(`Generate ${settings.contentWeeks} weeks of fresh content? This will also refresh your brand intelligence from the web.`)) {
+    if (window.confirm(`Regenerate all content? This will delete all scheduled posts and create a fresh ${settings.contentWeeks}-week content calendar.`)) {
       setGenerating(true);
+      setGenerationProgress({ current: 0, total: 100, message: 'Clearing old content...' });
       try {
         // Delete old scheduled content
         await supabase
@@ -238,12 +302,13 @@ export default function AutoPilot() {
           .eq('user_id', user.id)
           .eq('status', 'scheduled');
         
-        // Generate new content (will also refresh web intelligence)
-        await handleEnableAutoPilot();
+        // Generate new content
+        await handleGenerateAdditionalContent();
       } catch (error) {
         alert('Error regenerating content: ' + error.message);
       }
       setGenerating(false);
+      setGenerationProgress({ current: 0, total: 0, message: '' });
     }
   };
 
@@ -333,175 +398,252 @@ export default function AutoPilot() {
   }
 
   return (
-    <div className="autopilot-page">
-      <div className="page-header">
-        <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
-        <p>Fully automated content generation, scheduling, and posting</p>
-      </div>
-
-      {/* Progress Bar */}
-      {generating && generationProgress.total > 0 && (
-        <div className="generation-progress">
-          <div className="progress-header">
-            <h3>🤖 Generating Content...</h3>
-            <span className="progress-counter">
-              {generationProgress.current}%
-            </span>
-          </div>
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${generationProgress.current}%` }}
-            />
-          </div>
-          <p className="progress-message">{generationProgress.message}</p>
-        </div>
-      )}
-
-      {/* Status Card */}
-      <div className="status-card">
-        <div className="status-header">
-          <div className="status-indicator">
-            <div className={`indicator-dot ${autoPilotEnabled ? 'active' : 'inactive'}`}></div>
-            <h2>{autoPilotEnabled ? '✅ Auto-Pilot Active' : '⏸️ Auto-Pilot Inactive'}</h2>
-          </div>
-          
-          {autoPilotEnabled ? (
-            <button onClick={handleDisableAutoPilot} className="btn-danger">
-              Disable Auto-Pilot
-            </button>
-          ) : (
-            <button 
-              onClick={handleEnableAutoPilot} 
-              disabled={generating}
-              className="btn-primary btn-large"
-            >
-              {generating ? '⏳ Generating Content...' : '🚀 Activate Auto-Pilot'}
-            </button>
-          )}
-        </div>
-
-        {autoPilotEnabled && (
-          <div className="status-stats">
-            <div 
-              className="stat-card clickable" 
-              onClick={() => navigate('/dashboard/content')}
-              title="View all scheduled posts"
-            >
-              <div className="stat-value">{stats.scheduled}</div>
-              <div className="stat-label">Scheduled Posts</div>
-              <div className="stat-action">👁️ View</div>
+    <div className="autopilot-page-v2">
+      {/* Hero Section */}
+      <div className="autopilot-hero">
+        <div className="hero-content">
+          <div className="hero-top">
+            <h1>Auto-Pilot Mode</h1>
+            <div className="hero-badge">
+              <span className={`status-badge ${autoPilotEnabled ? 'active' : 'inactive'}`}>
+                {autoPilotEnabled ? '✓ Active' : '○ Inactive'}
+              </span>
             </div>
-            <div 
-              className="stat-card clickable" 
-              onClick={() => navigate('/dashboard/analytics')}
-              title="View published posts analytics"
-            >
-              <div className="stat-value">{stats.published}</div>
-              <div className="stat-label">Published</div>
-              <div className="stat-action">📊 Analytics</div>
-            </div>
-            <div 
-              className="stat-card clickable" 
-              onClick={() => navigate('/dashboard/content')}
-              title="Review pending posts"
-            >
-              <div className="stat-value">{stats.pending}</div>
-              <div className="stat-label">Pending Review</div>
-              <div className="stat-action">✏️ Review</div>
-            </div>
-            <div 
-              className="stat-card clickable" 
-              onClick={() => navigate('/dashboard/calendar')}
-              title="View calendar with upcoming posts"
-            >
-              <div className="stat-value">
-                {stats.nextPostDate ? new Date(stats.nextPostDate).toLocaleDateString() : 'N/A'}
-              </div>
-              <div className="stat-label">Next Post</div>
-              <div className="stat-action">🗓️ Calendar</div>
-            </div>
+            <p className="hero-subtitle">Automatically generate, schedule, and post content to all platforms</p>
           </div>
-        )}
-      </div>
 
-      {/* Brand Intelligence Status */}
-      {settings.enableWebCrawling && (
-        <div className="info-section brand-intelligence-section">
-          <h2><Brain size={24} className="section-icon" /> Brand Intelligence</h2>
-          <div className="intelligence-status">
-            {crawlingWeb ? (
-              <div className="crawling-indicator">
-                <div className="spinner"></div>
-                <p>🔍 Crawling your website and online presence to gather brand intelligence...</p>
-              </div>
-            ) : enrichedData ? (
-              <div className="intelligence-active">
-                <div className="intelligence-info">
-                  <span className="icon">✅</span>
-                  <div>
-                    <strong>Brand Intelligence Active</strong>
-                    <p>Last updated: {new Date(enrichedData.websiteData?.scrapedAt || Date.now()).toLocaleDateString()}</p>
-                    <p className="intelligence-details">
-                      {enrichedData.websiteData && `✓ Website analyzed`}
-                      {enrichedData.brandInsights && ` • ✓ Brand insights generated`}
-                      {enrichedData.contentThemes?.length > 0 && ` • ✓ ${enrichedData.contentThemes.length} content themes identified`}
-                    </p>
-                  </div>
-                </div>
-                <button onClick={handleRefreshBrandIntelligence} className="btn-secondary-small">
-                  🔄 Refresh
-                </button>
-              </div>
+          {/* CTA Section - Large Buttons */}
+          <div className="hero-cta-section">
+            {!autoPilotEnabled ? (
+              <button 
+                onClick={handleToggleAutoPilot}
+                disabled={generating}
+                className="btn-hero btn-hero-activate"
+              >
+                <span className="btn-icon">🚀</span>
+                <span className="btn-text">
+                  <span className="btn-main">Activate Auto-Pilot</span>
+                  <span className="btn-sub">Turn on to start generating content</span>
+                </span>
+              </button>
             ) : (
-              <div className="intelligence-inactive">
-                <p>Brand intelligence not yet gathered. Will be collected when you activate Auto-Pilot.</p>
+              <div className="hero-cta-active">
+                <button 
+                  onClick={handleToggleAutoPilot}
+                  className="btn-hero btn-hero-deactivate"
+                >
+                  <span className="btn-icon">⏻</span>
+                  Deactivate
+                </button>
+                {generating ? (
+                  <button 
+                    onClick={handleCancelGeneration}
+                    className="btn-hero btn-hero-cancel"
+                  >
+                    <span className="btn-icon">⏹</span>
+                    Stop Generation
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleGenerateAdditionalContent}
+                    className="btn-hero btn-hero-generate"
+                  >
+                    <span className="btn-icon">→</span>
+                    <span className="btn-text">
+                      <span className="btn-main">Generate Additional Content</span>
+                      <span className="btn-sub">{settings.contentWeeks} weeks of posts</span>
+                    </span>
+                  </button>
+                )}
               </div>
             )}
+          </div>
+
+          {/* Progress Bar */}
+          {generating && generationProgress.total > 0 && (
+            <div className="generation-progress-v2">
+              <div className="progress-info">
+                <span className="progress-message">{generationProgress.message}</span>
+                <span className="progress-percent">{generationProgress.current}%</span>
+              </div>
+              <div className="progress-bar-v2">
+                <div 
+                  className="progress-fill-v2" 
+                  style={{ width: `${generationProgress.current}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Stats Cards - Only shown when active */}
+      {autoPilotEnabled && (
+        <div className="stats-grid">
+          <div 
+            className="stat-card-v2 stat-clickable" 
+            onClick={() => navigate('/dashboard/content')}
+            title="View all scheduled posts"
+          >
+            <div className="stat-card-header">
+              <span className="stat-label">Scheduled</span>
+              <span className="stat-icon">📅</span>
+            </div>
+            <div className="stat-value-large">{stats.scheduled}</div>
+            <p className="stat-description">Posts ready to go</p>
+          </div>
+
+          <div 
+            className="stat-card-v2 stat-clickable" 
+            onClick={() => navigate('/dashboard/analytics')}
+            title="View published posts analytics"
+          >
+            <div className="stat-card-header">
+              <span className="stat-label">Published</span>
+              <span className="stat-icon">✅</span>
+            </div>
+            <div className="stat-value-large">{stats.published}</div>
+            <p className="stat-description">Posts live</p>
+          </div>
+
+          <div 
+            className="stat-card-v2 stat-clickable" 
+            onClick={() => navigate('/dashboard/content')}
+            title="Review pending posts"
+          >
+            <div className="stat-card-header">
+              <span className="stat-label">Pending</span>
+              <span className="stat-icon">⏳</span>
+            </div>
+            <div className="stat-value-large">{stats.pending}</div>
+            <p className="stat-description">Awaiting review</p>
+          </div>
+
+          <div 
+            className="stat-card-v2 stat-clickable" 
+            onClick={() => navigate('/dashboard/calendar')}
+            title="View calendar with upcoming posts"
+          >
+            <div className="stat-card-header">
+              <span className="stat-label">Next Post</span>
+              <span className="stat-icon">🗓️</span>
+            </div>
+            <div className="stat-value-large stat-date">
+              {stats.nextPostDate ? new Date(stats.nextPostDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+            </div>
+            <p className="stat-description">Upcoming</p>
           </div>
         </div>
       )}
 
       {/* How It Works */}
-      <div className="info-section">
-        <h2><Target size={24} className="section-icon" /> How Auto-Pilot Works</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <span className="feature-icon">🔍</span>
-            <h3>Crawls Your Online Presence</h3>
-            <p>Analyzes your website, social media, and brand presence to understand your business deeply</p>
+      <div className="content-section">
+        <h2>How It Works</h2>
+        <div className="steps-grid">
+          <div className="step-card">
+            <div className="step-icon">◉</div>
+            <h3>Analyze</h3>
+            <p>AI studies your website and online presence</p>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">🧠</span>
-            <h3>AI Analyzes Your Business</h3>
-            <p>Uses real business intelligence, industry data, products, and target audience insights</p>
+          <div className="step-card">
+            <div className="step-icon">◆</div>
+            <h3>Generate</h3>
+            <p>{settings.contentWeeks} weeks of brand-specific content</p>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">📝</span>
-            <h3>Generates Relevant Content</h3>
-            <p>Creates {settings.contentWeeks} weeks of SPECIFIC content about YOUR business, not generic posts</p>
+          <div className="step-card">
+            <div className="step-icon">▭</div>
+            <h3>Schedule</h3>
+            <p>Posts optimized for each platform</p>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">✨</span>
-            <h3>Creates Full Posts</h3>
-            <p>Writes complete posts with captions, hashtags, and images tailored to your brand</p>
-          </div>
-          <div className="feature-card">
-            <span className="feature-icon">📅</span>
-            <h3>Smart Scheduling</h3>
-            <p>Posts at optimal times based on your industry and platforms</p>
-          </div>
-          <div className="feature-card">
-            <span className="feature-icon">🔄</span>
-            <h3>Stays Fresh</h3>
-            <p>Automatically creates new content and updates brand intelligence periodically</p>
+          <div className="step-card">
+            <div className="step-icon">↻</div>
+            <h3>Update</h3>
+            <p>Automatically refreshes content</p>
           </div>
         </div>
       </div>
 
-      {/* Settings */}
-      <div className="settings-section">
-        <h2><SettingsIcon size={24} className="section-icon" /> Auto-Pilot Settings</h2>
+      {/* Brand Intelligence Card */}
+      {settings.enableWebCrawling && (
+        <div className="content-section">
+          <div className="section-header">
+            <h2>Brand Intelligence</h2>
+            {enrichedData && (
+              <button onClick={handleRefreshBrandIntelligence} className="btn-refresh-enhanced" title="Refresh brand intelligence">
+                🔄
+              </button>
+            )}
+          </div>
+
+          {crawlingWeb ? (
+            <div className="card-minimal">
+              <div className="loading-state">
+                <div className="spinner-mini"></div>
+                <p>Analyzing your website and online presence...</p>
+              </div>
+            </div>
+          ) : enrichedData ? (
+            <div className="intelligence-display">
+              <div className="intelligence-badges">
+                {enrichedData.websiteData && <span className="badge">◉ Website Data</span>}
+                {enrichedData.brandInsights && <span className="badge">◆ Insights</span>}
+                {enrichedData.contentThemes?.length > 0 && <span className="badge">{enrichedData.contentThemes.length} Themes</span>}
+              </div>
+              
+              <div className="intelligence-grid">
+                {enrichedData.websiteData && (
+                  <div className="intelligence-item">
+                    <div className="intelligence-icon">◉</div>
+                    <h4>Website Analyzed</h4>
+                    <p>Your site structure, content, and messaging</p>
+                  </div>
+                )}
+                {enrichedData.brandInsights && (
+                  <div className="intelligence-item">
+                    <div className="intelligence-icon">◆</div>
+                    <h4>Brand Insights</h4>
+                    <p>Your unique value proposition and audience</p>
+                  </div>
+                )}
+                {enrichedData.contentThemes?.length > 0 && (
+                  <div className="intelligence-item">
+                    <div className="intelligence-icon">▭</div>
+                    <h4>Content Themes</h4>
+                    <p>{enrichedData.contentThemes.length} key topics identified</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="intelligence-sources">
+                <p className="text-small">
+                  <strong>Data gathered from:</strong> Website content, meta tags, and online presence analysis
+                </p>
+                <p className="text-small">Last updated {new Date(enrichedData.websiteData?.scrapedAt || Date.now()).toLocaleDateString()}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="card-minimal card-subtle">
+              <div className="empty-state">
+                <div className="empty-icon">◎</div>
+                <p>Brand intelligence will be gathered when you activate Auto-Pilot</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Settings - Collapsible */}
+      <div className="content-section">
+        <div 
+          className="settings-header-v2" 
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          <h2>Settings & Configuration</h2>
+          <span className="toggle-arrow">{showSettings ? '▼' : '▶'}</span>
+        </div>
+        
+        {showSettings && (
+        <div className="settings-panel">
         
         <div className="setting-group">
           <label>Content Generation Window</label>
@@ -509,10 +651,14 @@ export default function AutoPilot() {
             value={settings.contentWeeks}
             onChange={(e) => setSettings({ ...settings, contentWeeks: Number(e.target.value) })}
           >
+            <option value="1">1 week (7 posts)</option>
             <option value="2">2 weeks (14 posts)</option>
             <option value="4">4 weeks (28 posts)</option>
+            <option value="6">6 weeks (42 posts)</option>
             <option value="8">8 weeks (56 posts)</option>
             <option value="12">12 weeks (84 posts)</option>
+            <option value="16">16 weeks (112 posts)</option>
+            <option value="24">24 weeks (168 posts)</option>
           </select>
         </div>
 
@@ -660,79 +806,72 @@ export default function AutoPilot() {
             🗑️ Remove All Scheduled Posts
           </button>
         </div>
+        </div>
+        )}
       </div>
 
       {/* Content Calendar Preview */}
       {generatedContent.length > 0 && (
-        <div className="calendar-preview">
-          <div className="calendar-preview-header">
-            <h2><Calendar size={24} className="section-icon" /> Upcoming Content Schedule</h2>
-            <span className="content-count-badge">
-              {generatedContent.filter(content => new Date(content.scheduled_for) > new Date()).length} posts
+        <div className="content-section">
+          <div className="section-header">
+            <h2>Scheduled Content</h2>
+            <span className="badge-count">
+              {generatedContent.filter(content => new Date(content.scheduled_for) > new Date()).length}
             </span>
           </div>
-          <div className="content-list-scroll">
-            <div className="content-grid">
-              {generatedContent
-                .filter(content => new Date(content.scheduled_for) > new Date()) // Only future posts
-                .slice(0, showAllContent ? undefined : 10)
-                .map((content, index) => (
-                <div 
-                  key={index} 
-                  className="content-card"
-                  onClick={() => window.location.href = `/dashboard/calendar?postId=${content.id}`}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      window.location.href = `/dashboard/calendar?postId=${content.id}`;
+          
+          <div className="content-preview-grid">
+            {generatedContent
+              .filter(content => new Date(content.scheduled_for) > new Date())
+              .map((content, index) => (
+              <div 
+                key={index} 
+                className="content-item-card"
+                onClick={() => window.location.href = `/dashboard/calendar?postId=${content.id}`}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    window.location.href = `/dashboard/calendar?postId=${content.id}`;
+                  }
+                }}
+              >
+                <button
+                  className="card-delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm('Delete this post?')) {
+                      supabase
+                        .from('scheduled_content')
+                        .delete()
+                        .eq('id', content.id)
+                        .then(() => {
+                          loadScheduledContent();
+                        })
+                        .catch(err => alert('Error deleting post: ' + err.message));
                     }
                   }}
+                  title="Delete this post"
                 >
-                  <div className="content-card-header">
-                    <span className="content-date-compact">
-                      {new Date(content.scheduled_for).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric'
-                      })}
+                  ✕
+                </button>
+                {content.image_url && (
+                  <div className="card-image">
+                    <img src={content.image_url} alt="Post preview" />
+                  </div>
+                )}
+                <div className="card-content">
+                  <div className="card-meta">
+                    <span className="meta-date">
+                      {new Date(content.scheduled_for).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
-                    <span className="content-platform-badge">{content.platform}</span>
+                    <span className="meta-platform">{content.platform}</span>
                   </div>
-                  
-                  <div className="content-card-body">
-                    {content.image_url && (
-                      <img 
-                        src={content.image_url} 
-                        alt="Post preview" 
-                        className="content-thumbnail-small"
-                      />
-                    )}
-                    <p className="content-text-compact">
-                      {content.content.substring(0, 80)}...
-                    </p>
-                  </div>
-                  
-                  <div className="content-card-footer">
-                    <span className="content-status-badge">{content.status}</span>
-                  </div>
+                  <p className="card-text">{content.content.substring(0, 60)}...</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-          
-          {generatedContent.filter(content => new Date(content.scheduled_for) > new Date()).length > 10 && (
-            <div className="show-more-container">
-              <button 
-                className="btn-show-more"
-                onClick={() => setShowAllContent(!showAllContent)}
-              >
-                {showAllContent 
-                  ? '📤 Show Less' 
-                  : `📥 Show ${generatedContent.filter(content => new Date(content.scheduled_for) > new Date()).length - 10} More Posts`
-                }
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>

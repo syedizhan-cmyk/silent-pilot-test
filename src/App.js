@@ -12,6 +12,7 @@ import Hero from './components/Hero';
 import TrustedBy from './components/TrustedBy';
 import Features from './components/Features';
 import Demo from './components/Demo';
+import AutoPilotShowcase from './components/AutoPilotShowcase';
 import Pricing from './components/Pricing';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
@@ -67,6 +68,7 @@ function LandingPage() {
       <Hero />
       <TrustedBy />
       <Features />
+      <AutoPilotShowcase />
       <Demo />
       <Pricing />
       <Testimonials />
