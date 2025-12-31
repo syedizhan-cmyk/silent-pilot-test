@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import './Pricing.css';
+import CheckoutButton from './billing/CheckoutButton';
 
 function Pricing() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = [
     {
+      id: 'starter',
       name: 'Starter',
       description: 'Perfect for solopreneurs and small businesses',
       monthlyPrice: 0,
       yearlyPrice: 0,
+      price_monthly: 0,
+      price_yearly: 0,
       features: [
         '10 posts per month',
         '2 social media accounts',
@@ -20,10 +24,13 @@ function Pricing() {
       highlighted: false
     },
     {
+      id: 'professional',
       name: 'Professional',
       description: 'For growing businesses and teams',
       monthlyPrice: 29,
       yearlyPrice: 290,
+      price_monthly: 29,
+      price_yearly: 290,
       features: [
         'Unlimited posts',
         '10 social media accounts',
@@ -36,10 +43,13 @@ function Pricing() {
       highlighted: true
     },
     {
+      id: 'enterprise',
       name: 'Enterprise',
       description: 'For large teams and agencies',
       monthlyPrice: 99,
       yearlyPrice: 990,
+      price_monthly: 99,
+      price_yearly: 990,
       features: [
         'Everything in Professional',
         'Unlimited social accounts',
@@ -119,9 +129,11 @@ function Pricing() {
                 ))}
               </ul>
 
-              <button className={`btn ${plan.highlighted ? 'btn-plan-primary' : 'btn-plan-secondary'}`}>
-                {plan.monthlyPrice === 0 ? 'Get Started Free' : 'Start Free Trial'}
-              </button>
+              <CheckoutButton 
+                plan={plan} 
+                billingCycle={billingCycle}
+                className={`btn ${plan.highlighted ? 'btn-plan-primary' : 'btn-plan-secondary'}`}
+              />
             </div>
           ))}
         </div>

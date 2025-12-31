@@ -18,40 +18,98 @@ const loadStripe = async () => {
  */
 export const createCheckoutSession = async (planId, billingCycle = 'monthly') => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('Auth check:', { user: user?.id, authError });
+    
+    if (authError || !user) {
+      console.error('Not authenticated:', authError);
+      return {
+        success: false,
+        error: 'Please log in to continue with checkout'
+      };
+    }
+    
+    // Get the session to ensure we have a valid token
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.error('No active session');
+      return {
+        success: false,
+        error: 'Session expired. Please log in again.'
+      };
+    }
+    console.log('Session valid:', session.access_token.substring(0, 20) + '...');
 
-    // Get plan details
-    const { data: plan, error: planError } = await supabase
-      .from('subscription_plans')
-      .select('*')
-      .eq('id', planId)
-      .single();
+    // Map plan names to Stripe price IDs
+    const stripePriceIds = {
+      starter: {
+        monthly: null,
+        yearly: null
+      },
+      professional: {
+        monthly: 'price_1SkXj3F60t7FOH7InOilbKBR',
+        yearly: 'price_1SkXj4F60t7FOH7IAlkHeumg'
+      },
+      enterprise: {
+        monthly: 'price_1SkXj4F60t7FOH7IWc6pvbpE',
+        yearly: 'price_1SkXj4F60t7FOH7IBEoku5ld'
+      }
+    };
 
-    if (planError) throw planError;
+    const priceId = stripePriceIds[planId]?.[billingCycle];
+    if (!priceId) {
+      return {
+        success: false,
+        error: 'Invalid plan or billing cycle'
+      };
+    }
 
     // Call backend to create Stripe checkout session
+    console.log('Calling edge function with:', { planId, billingCycle, priceId });
+    console.log('Using session token:', session.access_token ? 'Present' : 'Missing');
+    
     const { data, error } = await supabase.functions.invoke('create-checkout-session', {
       body: {
         planId,
         billingCycle,
-        priceId: billingCycle === 'monthly' ? plan.stripe_price_id_monthly : plan.stripe_price_id_yearly,
+        priceId,
         successUrl: `${window.location.origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${window.location.origin}/pricing`
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Edge function error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      return {
+        success: false,
+        error: error.message || 'Stripe setup incomplete. Please contact support.'
+      };
+    }
+    
+    if (!data) {
+      console.error('No data returned from edge function');
+      return {
+        success: false,
+        error: 'No response from payment service'
+      };
+    }
+    
+    console.log('Checkout session created:', data);
 
-    // Redirect to Stripe Checkout
-    const stripe = await loadStripe();
-    const { error: stripeError } = await stripe.redirectToCheckout({
-      sessionId: data.sessionId
-    });
-
-    if (stripeError) throw stripeError;
-
-    return { success: true };
+    // Redirect to Stripe Checkout using the URL directly
+    if (data.url) {
+      window.location.href = data.url;
+      return { success: true };
+    } else {
+      return {
+        success: false,
+        error: 'No checkout URL received'
+      };
+    }
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return { success: false, error: error.message };

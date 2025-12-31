@@ -105,12 +105,7 @@
   line-height: 1.2;
 }
 
-.hero-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-bottom: 0;
-}
+/* Removed conflicting hero-badge styles - using Hero.css styles instead */
 
 .status-badge {
   display: inline-flex;

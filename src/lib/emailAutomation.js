@@ -1,17 +1,37 @@
 // AI-Powered Email Marketing Automation with Self-Learning Optimization
 import { supabase } from './supabase';
-import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+let openai = null;
+let OpenAI = null;
+
+const initOpenAI = () => {
+  try {
+    if (!OpenAI) OpenAI = require('openai').default;
+    const key = process.env.REACT_APP_OPENAI_API_KEY;
+    if (key && key !== '[LOCAL_KEY_ONLY]' && key.startsWith('sk-')) {
+      openai = new OpenAI({
+        apiKey: key,
+        dangerouslyAllowBrowser: true
+      });
+    }
+  } catch (err) {
+    console.warn('OpenAI not available');
+  }
+};
 
 /**
  * Generate email content using AI based on campaign objective
  */
 export const generateEmailContent = async (campaignData, businessProfile) => {
   try {
+    if (!openai) initOpenAI();
+    if (!openai) {
+      return {
+        subject_line: "Demo Subject Line",
+        preview_text: "This is a demo preview",
+        body: "<p>Demo email content. Add REACT_APP_OPENAI_API_KEY to .env to enable AI generation.</p>"
+      };
+    }
     const prompt = `Create a professional email for ${campaignData.objective} campaign.
 
 Business: ${businessProfile.business_name}
