@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
+import { useBusinessProfileStore } from '../store/businessProfileStore';
 import { PenTool } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
@@ -178,31 +179,57 @@ function CreateContent() {
     setAiGenerating(true);
     setMessage({ type: '', text: '' });
     
-    const prompt = `${selectedTemplate ? `Create a ${selectedTemplate} post. ` : ''}${aiPrompt}. Tone: ${selectedTone}.`;
-    const platform = selectedPlatforms[0] || 'general';
-    
-    const result = await generateAIContent(prompt, platform);
-    
-    if (result.error) {
-      setMessage({ type: 'error', text: `AI generation failed: ${result.error}` });
-      setAiGenerating(false);
-    } else {
+    try {
+      // Import advanced prompt system
+      const { generateAdvancedPrompt, selectBestFramework } = await import('../lib/advancedPrompts');
+      
+      // Get business context from profile
+      const { profile } = useBusinessProfileStore.getState();
+      let businessContext = '';
+      if (profile) {
+        businessContext = `Business: ${profile.business_name || ''}
+Industry: ${profile.industry || ''}
+Target Audience: ${profile.target_audience || ''}
+Unique Value: ${profile.unique_value_proposition || ''}`;
+      }
+      
+      // Determine best framework based on template
+      const framework = selectedTemplate ? selectBestFramework(selectedTemplate) : 'aida';
+      
+      // Generate advanced prompt
+      const platform = selectedPlatforms[0] || 'linkedin';
+      const advancedPrompt = generateAdvancedPrompt({
+        topic: aiPrompt,
+        tone: selectedTone || 'professional',
+        platform: platform,
+        framework: framework,
+        businessContext: businessContext,
+        targetAudience: profile?.target_audience || '',
+        goal: 'engagement'
+      });
+      
+      console.log('🎯 Using advanced prompt with framework:', framework);
+      
+      // Generate content with advanced prompt
+      const result = await generateAIContent(advancedPrompt, platform);
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
       setContent(result.content);
-      setMessage({ type: 'success', text: 'Content generated successfully!' });
+      setMessage({ type: 'success', text: `✨ High-quality content generated using ${framework.toUpperCase()} framework!` });
+      
+      // Auto-dismiss success message
       setTimeout(() => {
-      setContent(`🚀 Exciting news! We're thrilled to announce our latest innovation that will transform the way you work.
-
-✨ Key features:
-• Automated workflows
-• Real-time analytics
-• Seamless integration
-
-Ready to boost your productivity? Try it today!
-
-#Innovation #ProductLaunch #Technology`);
+        setMessage({ type: '', text: '' });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('AI Generation Error:', error);
+      setMessage({ type: 'error', text: `AI generation failed: ${error.message}` });
+    } finally {
       setAiGenerating(false);
-      setMessage({ type: '', text: '' });
-    }, 2000);
     }
   };
 
