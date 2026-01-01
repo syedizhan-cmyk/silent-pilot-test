@@ -66,14 +66,26 @@ export const useAuthStore = create((set) => ({
   initialize: async () => {
     try {
       console.log('🔐 Initializing auth...');
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('📍 Session loaded:', session ? 'Active' : 'None');
       
-      set({ 
-        user: session?.user ?? null, 
-        session: session ?? null,
-        loading: false 
-      });
+      // Add timeout to prevent hanging
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session load timeout')), 3000)
+      );
+      
+      try {
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+        console.log('📍 Session loaded:', session ? 'Active' : 'None');
+        
+        set({ 
+          user: session?.user ?? null, 
+          session: session ?? null,
+          loading: false 
+        });
+      } catch (timeoutError) {
+        console.warn('⏰ Session load timed out, setting loading to false anyway');
+        set({ loading: false });
+      }
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange((_event, session) => {

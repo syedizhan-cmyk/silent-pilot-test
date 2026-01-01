@@ -13,9 +13,11 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import './AutoPilot-v2.css';
 
 export default function AutoPilot() {
+  console.log('🚀 AutoPilot component rendering...');
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const { profile, loadProfile, loading: profileLoading } = useBusinessProfileStore();
+  console.log('👤 AutoPilot - User:', user?.id, 'Profile:', profile ? 'exists' : 'null');
   const { 
     enrichedData, 
     loadEnrichedData, 
@@ -448,6 +450,23 @@ export default function AutoPilot() {
   };
 
   // Render the main page - profile checks will be done inside functions
+  console.log('🎯 Rendering decision - profile:', profile ? 'exists' : 'null', 'profileLoadAttempted:', profileLoadAttempted);
+  
+  if (!profileLoadAttempted) {
+    console.log('⏳ Still loading profile...');
+    return (
+      <div className="autopilot-page">
+        <div className="setup-required">
+          <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
+          <div className="warning-box">
+            <h2>⏳ Loading...</h2>
+            <p>Please wait while we load your profile.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return profile ? (
     <div className="autopilot-page-v2">
       {/* Hero Section - Redesigned */}

@@ -30,10 +30,12 @@ import './DashboardLayout.css';
 import Logo from '../Logo';
 
 function DashboardLayout({ children }) {
+  console.log('📐 DashboardLayout rendering with children:', children);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuthStore();
+  console.log('📐 User in DashboardLayout:', user?.id);
   const socialStore = useSocialStore();
   const [stopScheduler, setStopScheduler] = useState(null);
 
