@@ -2,16 +2,30 @@
 import { supabase } from './supabase';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Initialize OpenAI only if API key is available
+let openai = null;
+if (process.env.REACT_APP_OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 /**
  * Generate email content using AI based on campaign objective
  */
 export const generateEmailContent = async (campaignData, businessProfile) => {
   try {
+    // Check if OpenAI is available
+    if (!openai) {
+      console.warn('OpenAI API key not configured. Using mock data.');
+      return {
+        subject: `${campaignData.objective} - Special Offer`,
+        previewText: `Don't miss out on this exclusive opportunity`,
+        body: `<p>Hello!</p><p>We have something special for you regarding ${campaignData.objective}.</p><p><a href="#">Learn More</a></p>`
+      };
+    }
+
     const prompt = `Create a professional email for ${campaignData.objective} campaign.
 
 Business: ${businessProfile.business_name}

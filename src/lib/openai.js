@@ -6,10 +6,11 @@ if (!apiKey) {
   console.warn('OpenAI API key not found. Please add it to .env file');
 }
 
-export const openai = new OpenAI({
-  apiKey: apiKey || 'placeholder-key',
+// Initialize OpenAI only if API key is valid
+export const openai = apiKey && apiKey !== 'placeholder-key' ? new OpenAI({
+  apiKey: apiKey,
   dangerouslyAllowBrowser: true // Only for development
-});
+}) : null;
 
 // Generate content using OpenAI
 export const generateContent = async (prompt, platform = 'general') => {

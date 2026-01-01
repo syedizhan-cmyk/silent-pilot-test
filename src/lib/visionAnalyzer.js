@@ -1,10 +1,14 @@
 // AI Vision Analyzer for scanning images and videos
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Initialize OpenAI only if API key is available
+let openai = null;
+if (process.env.REACT_APP_OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 /**
  * Analyze an image using OpenAI's vision model
@@ -15,6 +19,18 @@ const openai = new OpenAI({
 export const analyzeImage = async (imageUrl, businessContext = {}) => {
   try {
     console.log('🔍 Analyzing image with AI vision...');
+    
+    // Check if OpenAI is available
+    if (!openai) {
+      console.warn('OpenAI API key not configured. Using mock analysis.');
+      return {
+        description: 'Image analysis unavailable - OpenAI API key not configured',
+        keywords: ['image', 'content'],
+        mood: 'neutral',
+        suggestedCaption: 'Check out this image!',
+        hashtagSuggestions: ['#content', '#socialmedia']
+      };
+    }
     
     const prompt = `Analyze this image for social media content creation.
     
