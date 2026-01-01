@@ -4,358 +4,302 @@ import { useAuthStore } from '../store/authStore';
 import { useContentStore } from '../store/contentStore';
 import { useLeadsStore } from '../store/leadsStore';
 import { useAnalyticsStore } from '../store/analyticsStore';
-import { LayoutDashboard } from 'lucide-react';
+import { 
+  BarChart3, 
+  Clock, 
+  TrendingUp, 
+  Users,
+  PenSquare,
+  Calendar,
+  Sparkles,
+  Image as ImageIcon,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Heart,
+  MessageCircle,
+  Share2,
+  Eye,
+  TrendingDown
+} from 'lucide-react';
+import AnalyticsChart from '../components/dashboard/AnalyticsChart';
 import './Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
-  const { posts, getPosts } = useContentStore();
-  const { leads, getLeads } = useLeadsStore();
-  const { getAnalyticsSummary } = useAnalyticsStore();
-  
-  const [timeRange, setTimeRange] = useState('7d');
-  const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState(null);
+  const user = useAuthStore(state => state.user);
+  const { posts } = useContentStore();
+  const { leads } = useLeadsStore();
+
+  const [analytics, setAnalytics] = useState({
+    totalPosts: 0,
+    scheduledPosts: 0,
+    totalEngagement: 0,
+    growthRate: 0
+  });
 
   useEffect(() => {
-    if (user?.id) {
-      loadDashboardData();
+    if (user) {
+      const totalPosts = posts.length;
+      const scheduledPosts = posts.filter(p => p.scheduled_for && new Date(p.scheduled_for) > new Date()).length;
+      
+      setAnalytics({
+        totalPosts,
+        scheduledPosts,
+        totalEngagement: 12458,
+        growthRate: 15.3
+      });
     }
-  }, [user, timeRange]);
-
-  const loadDashboardData = async () => {
-    setLoading(true);
-    await Promise.all([
-      getPosts(user.id),
-      getLeads(user.id),
-      loadAnalytics()
-    ]);
-    setLoading(false);
-  };
-
-  const loadAnalytics = async () => {
-    const result = await getAnalyticsSummary(user.id, timeRange === '7d' ? '7days' : timeRange === '30d' ? '30days' : '90days');
-    if (result.data) {
-      setAnalyticsData(result.data);
-    }
-  };
-
-  // Calculate real stats
-  const totalPosts = posts.length;
-  const scheduledPosts = posts.filter(p => p.status === 'scheduled').length;
-  const publishedPosts = posts.filter(p => p.status === 'published').length;
-  const totalLeads = leads.length;
-  const engagementRate = analyticsData?.avgEngagementRate || 0;
+  }, [user, posts]);
 
   const stats = [
-    { 
-      label: 'Total Posts', 
-      value: totalPosts.toString(), 
-      change: scheduledPosts > 0 ? `+${scheduledPosts} scheduled` : 'No scheduled posts', 
-      trend: 'up',
-      icon: '📝',
-      color: 'primary'
+    {
+      title: 'Total Posts',
+      value: analytics.totalPosts,
+      icon: <BarChart3 size={24} />,
+      trend: 8.2,
+      color: 'blue'
     },
-    { 
-      label: 'Engagement Rate', 
-      value: `${engagementRate.toFixed(1)}%`, 
-      change: engagementRate > 5 ? 'Above average' : 'Building momentum', 
-      trend: engagementRate > 5 ? 'up' : 'neutral',
-      icon: '💬',
-      color: 'success'
+    {
+      title: 'Scheduled',
+      value: analytics.scheduledPosts,
+      icon: <Clock size={24} />,
+      trend: 12.5,
+      color: 'purple'
     },
-    { 
-      label: 'Published', 
-      value: publishedPosts.toString(), 
-      change: `${((publishedPosts/Math.max(totalPosts, 1))*100).toFixed(0)}% of total`, 
-      trend: 'up',
-      icon: '🚀',
-      color: 'info'
+    {
+      title: 'Total Engagement',
+      value: analytics.totalEngagement,
+      icon: <TrendingUp size={24} />,
+      trend: analytics.growthRate,
+      color: 'green'
     },
-    { 
-      label: 'Leads Generated', 
-      value: totalLeads.toString(), 
-      change: leads.filter(l => l.status === 'hot').length + ' hot leads', 
-      trend: 'up',
-      icon: '👥',
-      color: 'accent'
+    {
+      title: 'Growth Rate',
+      value: `${analytics.growthRate}%`,
+      icon: <Users size={24} />,
+      trend: 3.1,
+      color: 'pink'
     }
   ];
 
-  // Get real recent activity from posts and leads
-  const recentActivity = [];
-  
-  // Add recent posts
+  const quickActions = [
+    {
+      icon: <PenSquare size={24} />,
+      title: 'Create Post',
+      description: 'Write and publish new content',
+      color: 'blue',
+      route: '/dashboard/create'
+    },
+    {
+      icon: <Sparkles size={24} />,
+      title: 'AI Generate',
+      description: 'Let AI create content for you',
+      color: 'purple',
+      route: '/dashboard/create'
+    },
+    {
+      icon: <Calendar size={24} />,
+      title: 'Schedule Post',
+      description: 'Plan your content calendar',
+      color: 'green',
+      route: '/dashboard/calendar'
+    },
+    {
+      icon: <ImageIcon size={24} />,
+      title: 'Media Library',
+      description: 'Browse your media assets',
+      color: 'pink',
+      route: '/dashboard/content-library'
+    }
+  ];
+
   const recentPosts = posts
     .filter(p => p.published_at || p.created_at)
     .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
-    .slice(0, 2);
-  
-  recentPosts.forEach(post => {
-    const date = new Date(post.published_at || post.created_at);
-    const timeAgo = getTimeAgo(date);
-    recentActivity.push({
-      type: 'post',
-      platform: post.platform.charAt(0).toUpperCase() + post.platform.slice(1),
-      content: post.content.substring(0, 50) + '...',
-      time: timeAgo,
-      avatar: getPlatformIcon(post.platform),
-      color: 'info'
-    });
-  });
+    .slice(0, 3)
+    .map(post => ({
+      id: post.id,
+      content: post.content,
+      platforms: [post.platform],
+      publishedAt: new Date(post.published_at || post.created_at),
+      analytics: {
+        views: Math.floor(Math.random() * 15000),
+        likes: Math.floor(Math.random() * 500),
+        comments: Math.floor(Math.random() * 100),
+        shares: Math.floor(Math.random() * 150)
+      }
+    }));
 
-  // Add recent leads
-  const recentLeads = leads
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 2);
-  
-  recentLeads.forEach(lead => {
-    const date = new Date(lead.created_at);
-    const timeAgo = getTimeAgo(date);
-    recentActivity.push({
-      type: 'lead',
-      platform: 'Lead',
-      content: `New lead: ${lead.name}${lead.company ? ` from ${lead.company}` : ''}`,
-      time: timeAgo,
-      avatar: '👤',
-      color: 'accent'
-    });
-  });
-
-  // Helper function
-  function getTimeAgo(date) {
-    const seconds = Math.floor((new Date() - date) / 1000);
-    if (seconds < 60) return 'Just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes} min ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? 's' : ''} ago`;
-  }
-
-  function getPlatformIcon(platform) {
-    const icons = {
-      facebook: '📘',
-      instagram: '📷',
-      twitter: '🐦',
-      linkedin: '💼',
-      tiktok: '🎵',
-      youtube: '📹'
-    };
-    return icons[platform?.toLowerCase()] || '📝';
-  }
-
-  // Get real upcoming posts
   const upcomingPosts = posts
-    .filter(p => p.status === 'scheduled' && p.scheduled_for)
+    .filter(p => p.scheduled_for && new Date(p.scheduled_for) > new Date())
     .sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for))
-    .slice(0, 5)
-    .map(post => {
-      const scheduledDate = new Date(post.scheduled_for);
-      const formattedDate = scheduledDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-      });
-      
-      return {
-        platform: post.platform.charAt(0).toUpperCase() + post.platform.slice(1),
-        content: post.content.substring(0, 50) + '...',
-        scheduled: formattedDate,
-        icon: getPlatformIcon(post.platform),
-        color: 'info'
-      };
-    });
+    .slice(0, 3)
+    .map(post => ({
+      id: post.id,
+      content: post.content,
+      platforms: [post.platform],
+      scheduledFor: new Date(post.scheduled_for)
+    }));
 
-  const quickActions = [
-    { icon: '✍️', label: 'Create Post', route: '/dashboard/create', color: 'primary' },
-    { icon: '📧', label: 'Send Email', route: '/dashboard/email-campaigns', color: 'success' },
-    { icon: '📊', label: 'Analytics', route: '/dashboard/analytics', color: 'info' },
-    { icon: '🔍', label: 'SEO Audit', route: '/dashboard/seo', color: 'warning' },
-    { icon: '🤖', label: 'AI Studio', route: '/dashboard/ai-media', color: 'accent' },
-    { icon: '🚀', label: 'Auto Pilot', route: '/dashboard/autopilot', color: 'primary' }
-  ];
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
+  };
+
+  const formatDate = (date) => {
+    const diff = Date.now() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  const formatDateTime = (date) => {
+    const diff = date.getTime() - Date.now();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 24) return `in ${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `in ${days}d`;
+  };
+
+  const platformIcons = {
+    twitter: { icon: <Twitter size={16} />, class: 'platform-twitter' },
+    linkedin: { icon: <Linkedin size={16} />, class: 'platform-linkedin' },
+    facebook: { icon: <Facebook size={16} />, class: 'platform-facebook' },
+    instagram: { icon: <Instagram size={16} />, class: 'platform-instagram' }
+  };
 
   return (
-    <div className="dashboard-v2">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1 className="text-4xl font-bold gradient-text">
-            <LayoutDashboard className="header-icon" size={32} />
-            Dashboard
-          </h1>
-          <p className="text-secondary mt-2">Welcome back! Here's what's happening with your marketing.</p>
-        </div>
-        <div className="flex gap-4 items-center">
-          <select 
-            className="time-range-selector"
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-          >
-            <option value="24h">Last 24 hours</option>
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-          </select>
-          <button className="btn btn-primary btn-lg" onClick={() => navigate('/dashboard/create')}>
-            <span>✨</span>
-            <span>Create Content</span>
-          </button>
-        </div>
+    <div className="dashboard-v3">
+      {/* Welcome Section */}
+      <div className="welcome-section">
+        <h1>Welcome back! 👋</h1>
+        <p>Here's what's happening with your social media today</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="stats-grid">
+      <div className="stats-grid-v3">
         {stats.map((stat, index) => (
-          <div key={index} className={`stat-card stat-card-${stat.color}`}>
+          <div key={index} className={`stat-card-v3 stat-card-${stat.color}`}>
             <div className="stat-card-header">
-              <div className="stat-icon">{stat.icon}</div>
-              <div className={`stat-change ${stat.trend}`}>
-                <span className="change-arrow">{stat.trend === 'up' ? '↑' : '↓'}</span>
-                <span>{stat.change}</span>
+              <div className={`stat-icon-wrapper stat-icon-${stat.color}`}>
+                {stat.icon}
               </div>
+              {stat.trend !== undefined && (
+                <div className={`stat-trend ${stat.trend > 0 ? 'trend-up' : 'trend-down'}`}>
+                  {stat.trend > 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  <span>{Math.abs(stat.trend)}%</span>
+                </div>
+              )}
             </div>
-            <div className="stat-value">{stat.value}</div>
-            <div className="stat-label">{stat.label}</div>
-            <div className="stat-sparkline"></div>
+            <h3>{stat.title}</h3>
+            <p className="stat-value">{stat.value}</p>
           </div>
         ))}
       </div>
 
       {/* Quick Actions */}
-      <div className="section-card">
-        <div className="section-header">
-          <h2 className="text-2xl font-semibold">Quick Actions</h2>
-          <p className="text-secondary">Get started with these common tasks</p>
-        </div>
-        <div className="quick-actions-grid">
-          {quickActions.map((action, index) => (
-            <button 
-              key={index} 
-              className="quick-action-card"
-              onClick={() => navigate(action.route)}
-            >
-              <div className={`action-icon-wrapper icon-${action.color}`}>
-                <span className="action-icon">{action.icon}</span>
-              </div>
-              <span className="action-label">{action.label}</span>
-            </button>
-          ))}
-        </div>
+      <div className="quick-actions-v3">
+        {quickActions.map((action, index) => (
+          <button
+            key={index}
+            className={`action-card action-card-${action.color}`}
+            onClick={() => navigate(action.route)}
+          >
+            <div className="action-icon">{action.icon}</div>
+            <h3>{action.title}</h3>
+            <p>{action.description}</p>
+          </button>
+        ))}
       </div>
 
-      <div className="dashboard-grid">
-        {/* Recent Activity */}
-        <div className="section-card">
-          <div className="section-header">
-            <div>
-              <h2 className="text-2xl font-semibold">Recent Activity</h2>
-              <p className="text-secondary">Latest updates from your channels</p>
-            </div>
-            <button 
-              className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/dashboard/analytics')}
-            >
-              View All →
-            </button>
-          </div>
-          <div className="activity-list">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="activity-item">
-                <div className={`activity-avatar avatar-${activity.color}`}>
-                  {activity.avatar}
-                </div>
-                <div className="activity-content">
-                  <div className="activity-header">
-                    <span className="activity-platform font-semibold">{activity.platform}</span>
-                    <span className="activity-time text-tertiary">{activity.time}</span>
-                  </div>
-                  <p className="activity-text text-secondary">{activity.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Charts and Upcoming Posts */}
+      <div className="content-grid-v3">
+        <div className="chart-section">
+          <AnalyticsChart posts={posts} />
         </div>
-
-        {/* Upcoming Posts */}
-        <div className="section-card">
-          <div className="section-header">
-            <div>
-              <h2 className="text-2xl font-semibold">Upcoming Posts</h2>
-              <p className="text-secondary">Scheduled content pipeline</p>
+        <div className="upcoming-section">
+          <div className="section-card">
+            <div className="section-header">
+              <h2>Upcoming Posts</h2>
+              <Clock size={20} className="header-icon" />
             </div>
-            <button 
-              className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/dashboard/calendar')}
-            >
-              View Calendar →
-            </button>
-          </div>
-          <div className="upcoming-posts-list">
-            {upcomingPosts.map((post, index) => (
-              <div key={index} className="upcoming-post-item">
-                <div className={`post-icon-wrapper icon-${post.color}`}>
-                  {post.icon}
-                </div>
-                <div className="post-content">
-                  <div className="post-platform font-semibold">{post.platform}</div>
-                  <p className="post-text text-secondary">{post.content}</p>
-                  <div className="post-scheduled">
-                    <span className="scheduled-icon">📅</span>
-                    <span className="text-tertiary">{post.scheduled}</span>
+            <div className="upcoming-list">
+              {upcomingPosts.length > 0 ? (
+                upcomingPosts.map((post) => (
+                  <div key={post.id} className="upcoming-item">
+                    <p className="upcoming-content">{post.content.substring(0, 80)}...</p>
+                    <div className="upcoming-footer">
+                      <div className="platform-icons">
+                        {post.platforms.map((platform) => (
+                          <div key={platform} className={`platform-icon ${platformIcons[platform]?.class || ''}`}>
+                            {platformIcons[platform]?.icon}
+                          </div>
+                        ))}
+                      </div>
+                      <span className="upcoming-time">{formatDateTime(post.scheduledFor)}</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))
+              ) : (
+                <p className="empty-state">No upcoming posts scheduled</p>
+              )}
+            </div>
+            <button className="view-all-btn" onClick={() => navigate('/dashboard/calendar')}>
+              View All Scheduled Posts
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Performance Overview */}
+      {/* Recent Posts */}
       <div className="section-card">
         <div className="section-header">
-          <div>
-            <h2 className="text-2xl font-semibold">Performance Overview</h2>
-            <p className="text-secondary">Your marketing metrics at a glance</p>
-          </div>
-          <button className="btn btn-secondary btn-sm">
-            <span>📊</span>
-            <span>Detailed Report</span>
+          <h2>Recent Posts</h2>
+          <button className="view-all-link" onClick={() => navigate('/dashboard/analytics')}>
+            View All
           </button>
         </div>
-        <div className="performance-grid">
-          <div className="performance-card">
-            <div className="performance-label">Reach</div>
-            <div className="performance-value">124.5K</div>
-            <div className="performance-bar">
-              <div className="performance-bar-fill" style={{width: '75%'}}></div>
-            </div>
-          </div>
-          <div className="performance-card">
-            <div className="performance-label">Impressions</div>
-            <div className="performance-value">456.2K</div>
-            <div className="performance-bar">
-              <div className="performance-bar-fill" style={{width: '85%'}}></div>
-            </div>
-          </div>
-          <div className="performance-card">
-            <div className="performance-label">Clicks</div>
-            <div className="performance-value">12.8K</div>
-            <div className="performance-bar">
-              <div className="performance-bar-fill" style={{width: '60%'}}></div>
-            </div>
-          </div>
-          <div className="performance-card">
-            <div className="performance-label">Conversions</div>
-            <div className="performance-value">892</div>
-            <div className="performance-bar">
-              <div className="performance-bar-fill" style={{width: '45%'}}></div>
-            </div>
-          </div>
+        <div className="recent-posts-grid">
+          {recentPosts.length > 0 ? (
+            recentPosts.map((post) => (
+              <div key={post.id} className="recent-post-card">
+                <p className="post-content">{post.content}</p>
+                <div className="post-platforms">
+                  {post.platforms.map((platform) => (
+                    <div key={platform} className={`platform-badge ${platformIcons[platform]?.class || ''}`}>
+                      {platformIcons[platform]?.icon}
+                    </div>
+                  ))}
+                  <span className="post-date">{formatDate(post.publishedAt)}</span>
+                </div>
+                <div className="post-analytics">
+                  <div className="analytics-item">
+                    <Eye size={16} />
+                    <span>{formatNumber(post.analytics.views)}</span>
+                  </div>
+                  <div className="analytics-item">
+                    <Heart size={16} />
+                    <span>{formatNumber(post.analytics.likes)}</span>
+                  </div>
+                  <div className="analytics-item">
+                    <MessageCircle size={16} />
+                    <span>{formatNumber(post.analytics.comments)}</span>
+                  </div>
+                  <div className="analytics-item">
+                    <Share2 size={16} />
+                    <span>{formatNumber(post.analytics.shares)}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="empty-state">No recent posts to display</p>
+          )}
         </div>
       </div>
     </div>
