@@ -13,11 +13,9 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import './AutoPilot-v2.css';
 
 export default function AutoPilot() {
-  console.log('🚀 AutoPilot component rendering...');
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
-  const { profile, loadProfile, loading: profileLoading } = useBusinessProfileStore();
-  console.log('👤 AutoPilot - User:', user?.id, 'Profile:', profile ? 'exists' : 'null');
+  const { profile, loadProfile } = useBusinessProfileStore();
   const { 
     enrichedData, 
     loadEnrichedData, 
@@ -41,7 +39,6 @@ export default function AutoPilot() {
   });
   const [uploadedMedia, setUploadedMedia] = useState([]);
   const [analyzingMedia, setAnalyzingMedia] = useState(false);
-  const [profileLoadAttempted, setProfileLoadAttempted] = useState(false);
   
   const [generatedContent, setGeneratedContent] = useState([]);
   const [stats, setStats] = useState({
@@ -59,35 +56,20 @@ export default function AutoPilot() {
   });
 
   useEffect(() => {
-    if (user && !profileLoadAttempted) {
+    if (user) {
       console.log('👤 User found, loading data for:', user.id);
-      
-      // Set a timeout to prevent infinite loading
-      const timeoutId = setTimeout(() => {
-        if (!profileLoadAttempted) {
-          console.warn('⏰ Profile load timeout - proceeding anyway');
-          setProfileLoadAttempted(true);
-        }
-      }, 3000); // 3 second timeout
-      
-      loadProfile(user.id)
-        .finally(() => {
-          clearTimeout(timeoutId);
-          setProfileLoadAttempted(true);
-        });
-      
+      loadProfile(user.id);
       loadAutoPilotSettings();
       loadScheduledContent();
       // Try to load enriched data, but don't fail if table doesn't exist
       loadEnrichedData(user.id).catch(err => {
         console.log('Brand intelligence not available yet:', err);
       });
-    } else if (!user) {
+    } else {
       console.log('❌ No user found in AutoPilot');
-      setProfileLoadAttempted(true); // Mark as attempted even if no user
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profileLoadAttempted]);
+  }, [user]);
 
   // Debug: Log enrichedData changes
   useEffect(() => {
@@ -449,25 +431,25 @@ export default function AutoPilot() {
     setUploadedMedia(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Render the main page - profile checks will be done inside functions
-  console.log('🎯 Rendering decision - profile:', profile ? 'exists' : 'null', 'profileLoadAttempted:', profileLoadAttempted);
-  
-  if (!profileLoadAttempted) {
-    console.log('⏳ Still loading profile...');
+  if (!profile) {
     return (
       <div className="autopilot-page">
         <div className="setup-required">
           <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
           <div className="warning-box">
-            <h2>⏳ Loading...</h2>
-            <p>Please wait while we load your profile.</p>
+            <h2>⚠️ Business Profile Required</h2>
+            <p>To activate Auto-Pilot, please complete your Business Profile first.</p>
+            <p>The AI needs to understand your business to generate relevant content automatically.</p>
+            <a href="/dashboard/business-profile" className="btn-primary">
+              Complete Business Profile →
+            </a>
           </div>
         </div>
       </div>
     );
   }
-  
-  return profile ? (
+
+  return (
     <div className="autopilot-page-v2">
       {/* Hero Section - Redesigned */}
       <div className="autopilot-hero-new">
@@ -986,20 +968,6 @@ export default function AutoPilot() {
         title={confirmDialog.title}
         message={confirmDialog.message}
       />
-    </div>
-  ) : (
-    <div className="autopilot-page">
-      <div className="setup-required">
-        <h1><Bot className="header-icon" size={32} /> Silent Pilot - Auto-Pilot Mode</h1>
-        <div className="warning-box">
-          <h2>⚠️ Business Profile Required</h2>
-          <p>To activate Auto-Pilot, please complete your Business Profile first.</p>
-          <p>The AI needs to understand your business to generate relevant content automatically.</p>
-          <a href="/dashboard/business-profile" className="btn-primary">
-            Complete Business Profile →
-          </a>
-        </div>
-      </div>
     </div>
   );
 }

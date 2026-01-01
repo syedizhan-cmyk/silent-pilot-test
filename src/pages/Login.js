@@ -26,26 +26,15 @@ function Login() {
         setError(error);
         setLoading(false);
       } else {
-        // Try to load profile with timeout
-        try {
-          const profilePromise = loadProfile(data.user.id);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile load timeout')), 5000)
-          );
-          
-          const profile = await Promise.race([profilePromise, timeoutPromise]);
-          
-          if (profile && profile.onboarding_completed) {
-            // User has completed onboarding, go to dashboard
-            navigate('/dashboard');
-          } else {
-            // User hasn't completed onboarding, redirect there
-            navigate('/onboarding');
-          }
-        } catch (profileError) {
-          console.warn('Profile load failed or timed out:', profileError);
-          // Still navigate to dashboard even if profile load fails
+        // Check if user has completed onboarding
+        const profile = await loadProfile(data.user.id);
+        
+        if (profile && profile.onboarding_completed) {
+          // User has completed onboarding, go to dashboard
           navigate('/dashboard');
+        } else {
+          // User hasn't completed onboarding, redirect there
+          navigate('/onboarding');
         }
         setLoading(false);
       }
