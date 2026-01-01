@@ -5,7 +5,6 @@ import { useBusinessProfileStore } from '../store/businessProfileStore';
 import {
   generateAIImage,
   generateInfographicContent,
-  generateVideoScript,
   generateCarouselContent,
   generateBlogOutline,
   generateNewsletterContent,
@@ -13,6 +12,11 @@ import {
   generateContentBatch,
   repurposeContent
 } from '../lib/mediaGenerator';
+import {
+  generateProfessionalImage,
+  generateVideoScript,
+  generateVideoConceptAndStoryboard
+} from '../lib/advancedMediaGenerator';
 import './AIMediaStudio.css';
 
 export default function AIMediaStudio() {
@@ -71,17 +75,26 @@ export default function AIMediaStudio() {
     
     setLoading(true);
     setError(null);
-    setResult(null); // Clear previous result
+    setResult(null);
     
     try {
-      console.log('Generating image with prompt:', imagePrompt);
-      // Don't pass business context to AI Media Studio - use exact prompt
-      const result = await generateAIImage(imagePrompt.trim(), null, imageStyle);
-      console.log('Image generated:', result);
+      console.log('🎨 Generating professional image with advanced AI...');
+      
+      // Get business context for better results
+      const businessContext = profile ? `${profile.business_name}, ${profile.industry}, target: ${profile.target_audience}` : '';
+      
+      // Use advanced image generation (DALL-E 3, SDXL, or Leonardo)
+      const result = await generateProfessionalImage(
+        imagePrompt.trim(),
+        businessContext,
+        imageStyle
+      );
+      
+      console.log('✅ Professional image generated:', result);
       setResult(result);
     } catch (err) {
       console.error('Image generation error:', err);
-      setError(err.message);
+      setError(err.message + '\n\nTip: Add REACT_APP_OPENAI_API_KEY to .env for DALL-E 3 (best quality)');
     }
     setLoading(false);
   };
@@ -99,12 +112,43 @@ export default function AIMediaStudio() {
   };
 
   const handleGenerateVideo = async () => {
+    if (!videoTopic || videoTopic.trim() === '') {
+      setError('Please enter a video topic');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
+    setResult(null);
+    
     try {
-      const result = await generateVideoScript(videoTopic, videoDuration, getBusinessContext());
-      setResult(result);
+      console.log('🎬 Generating professional video concept...');
+      
+      const businessContext = profile ? `${profile.business_name}, ${profile.industry}, target: ${profile.target_audience}` : '';
+      
+      // Generate comprehensive video concept and script
+      const concept = await generateVideoConceptAndStoryboard(
+        videoTopic.trim(),
+        businessContext,
+        videoDuration
+      );
+      
+      // Also generate detailed script
+      const script = await generateVideoScript(
+        videoTopic.trim(),
+        videoDuration,
+        businessContext
+      );
+      
+      console.log('✅ Video concept and script generated');
+      
+      setResult({
+        ...concept,
+        script: script.script,
+        note: 'Professional video concept ready! Use with:\n• Runway ML (AI video generation)\n• Pika Labs (text-to-video)\n• CapCut/Adobe Premiere (manual editing)\n• Stock footage + your script'
+      });
     } catch (err) {
+      console.error('Video generation error:', err);
       setError(err.message);
     }
     setLoading(false);
