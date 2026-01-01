@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Users } from 'lucide-react';
 import { useLeadsStore } from '../store/leadsStore';
+import { useConfirm } from '../hooks/useConfirm';
+import { toast } from 'react-toastify';
 import { useAuthStore } from '../store/authStore';
 import './Leads.css';
 
 function Leads() {
+  const { confirm } = useConfirm();
   const user = useAuthStore((state) => state.user);
   const { leads, getLeads, addLead, updateLead, deleteLead, updateLeadStatus, loading } = useLeadsStore();
   const [filter, setFilter] = useState('all');
@@ -39,7 +42,7 @@ function Leads() {
 
   const handleAddLead = async () => {
     if (!newLead.name || !newLead.email) {
-      alert('Name and email are required');
+      toast.error('Name and email are required');
       return;
     }
 
@@ -64,7 +67,7 @@ function Leads() {
   };
 
   const handleDelete = async (leadId) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
+    const confirmed = await confirm({      title: 'Delete Lead?',      message: 'Are you sure you want to delete this lead?\n\nThis action cannot be undone.',      confirmText: 'Delete',      cancelText: 'Cancel'    });    if (confirmed) {
       await deleteLead(leadId);
     }
   };

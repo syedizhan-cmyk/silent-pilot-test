@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useSocialStore } from '../store/socialStore';
+import { useConfirm } from '../hooks/useConfirm';
 import './SocialConnect.css';
 
 function SocialConnect() {
+  const { confirm } = useConfirm();
   const user = useAuthStore((state) => state.user);
   const { connectedAccounts, getConnectedAccounts, disconnectAccount } = useSocialStore();
   const [loading, setLoading] = useState(false);
@@ -125,7 +127,14 @@ function SocialConnect() {
   };
 
   const handleDisconnect = async (accountId, platformName) => {
-    if (window.confirm(`Disconnect ${platformName}?`)) {
+    const confirmed = await confirm({
+      title: `Disconnect ${platformName}?`,
+      message: `Are you sure you want to disconnect your ${platformName} account?\n\nYou'll need to reconnect to post again.`,
+      confirmText: 'Yes, Disconnect',
+      cancelText: 'Cancel'
+    });
+    
+    if (confirmed) {
       setLoading(true);
       const { error } = await disconnectAccount(accountId);
       if (error) {

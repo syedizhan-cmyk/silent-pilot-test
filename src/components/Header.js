@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 import './Header.css';
 
@@ -32,7 +31,6 @@ function Header() {
           </nav>
 
           <div className="header-actions">
-            <ThemeToggle />
             <a href="/login" className="btn btn-secondary">Sign In</a>
             <a href="/signup" className="btn btn-primary">Get Started</a>
           </div>

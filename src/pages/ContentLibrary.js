@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { useConfirm } from '../hooks/useConfirm';
 import { supabase } from '../lib/supabase';
 import './ContentLibrary.css';
 
 function ContentLibrary() {
+  const { confirm } = useConfirm();
   const user = useAuthStore((state) => state.user);
   const [filter, setFilter] = useState('all');
   const [view, setView] = useState('grid');
@@ -86,7 +88,14 @@ function ContentLibrary() {
   };
 
   const handleDelete = async (id, source) => {
-    if (window.confirm(`Delete this ${source === 'autopilot' ? 'post' : 'media'}?`)) {
+    const confirmed = await confirm({
+      title: `Delete ${source === 'autopilot' ? 'Post' : 'Media'}?`,
+      message: `Are you sure you want to delete this ${source === 'autopilot' ? 'post' : 'media item'}?\n\nThis action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    });
+    
+    if (confirmed) {
       try {
         const table = source === 'autopilot' ? 'scheduled_content' : 'media_library';
         const { error } = await supabase

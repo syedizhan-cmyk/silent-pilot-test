@@ -105,12 +105,7 @@
   line-height: 1.2;
 }
 
-.hero-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-bottom: 0;
-}
+/* Removed conflicting hero-badge styles - using Hero.css styles instead */
 
 .status-badge {
   display: inline-flex;
@@ -1404,4 +1399,402 @@
     width: 100%;
     text-align: center;
   }
+}
+
+/* New Clean Hero Design */
+.autopilot-hero-new {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.05), rgba(138, 43, 226, 0.05));
+  border-radius: 24px;
+  padding: 60px 40px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.autopilot-hero-new::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(88, 101, 242, 0.1), transparent 50%);
+  pointer-events: none;
+}
+
+.hero-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-badge-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(88, 101, 242, 0.1);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #7289DA;
+  margin-bottom: 24px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.feature-badge-new svg {
+  color: #5865F2;
+}
+
+.hero-title-new {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 20px 0;
+  color: #fff;
+}
+
+.hero-description-new {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Control Panel */
+.control-panel-new {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.control-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.power-toggle-container {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Power Toggle Button */
+.power-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px 40px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 320px;
+}
+
+.power-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(138, 43, 226, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.power-toggle:hover::before {
+  opacity: 1;
+}
+
+.power-toggle:hover {
+  border-color: rgba(88, 101, 242, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(88, 101, 242, 0.2);
+}
+
+.power-toggle.active {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.15), rgba(138, 43, 226, 0.15));
+  border-color: rgba(88, 101, 242, 0.5);
+  box-shadow: 0 8px 32px rgba(88, 101, 242, 0.3);
+}
+
+.power-toggle.active::before {
+  opacity: 1;
+}
+
+.power-toggle:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.toggle-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(88, 101, 242, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.power-toggle:hover .toggle-icon {
+  transform: scale(1.05);
+  background: rgba(88, 101, 242, 0.3);
+}
+
+.power-toggle.active .toggle-icon {
+  background: rgba(88, 101, 242, 0.4);
+  box-shadow: 0 0 30px rgba(88, 101, 242, 0.5);
+}
+
+.toggle-icon svg {
+  color: #7289DA;
+  transition: color 0.3s ease;
+}
+
+.power-toggle.active .toggle-icon svg {
+  color: #fff;
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.toggle-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.status-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.status-subtext {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.power-toggle.active .status-subtext {
+  color: rgba(114, 137, 218, 0.8);
+}
+
+/* Additional Buttons */
+.generate-more-btn,
+.cancel-btn {
+  padding: 20px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.generate-more-btn:hover {
+  background: rgba(88, 101, 242, 0.1);
+  border-color: rgba(88, 101, 242, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.2);
+}
+
+.cancel-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Progress Bar */
+.progress-container-new {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.progress-label {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.progress-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #7289DA;
+}
+
+.progress-track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5865F2, #7289DA);
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .autopilot-hero-new {
+    padding: 40px 20px;
+  }
+  
+  .hero-title-new {
+    font-size: 36px;
+  }
+  
+  .hero-description-new {
+    font-size: 16px;
+  }
+  
+  .power-toggle-container {
+    flex-direction: column;
+  }
+  
+  .power-toggle {
+    min-width: 100%;
+  }
+  
+  .toggle-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .toggle-status {
+    text-align: center;
+  }
+}
+
+/* Green accent for Activate button */
+.power-toggle.activate-mode {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.power-toggle.activate-mode:hover {
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 12px 40px rgba(34, 197, 94, 0.2);
+}
+
+.power-toggle.activate-mode::before {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+}
+
+.power-toggle.activate-mode .toggle-icon {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.power-toggle.activate-mode:hover .toggle-icon {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.power-toggle.activate-mode .toggle-icon svg {
+  color: #22c55e;
+}
+
+.power-toggle.activate-mode .status-subtext {
+  color: rgba(34, 197, 94, 0.8);
+}
+
+/* Red accent for Deactivate button */
+.power-toggle.deactivate-mode {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+}
+
+.power-toggle.deactivate-mode:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.2);
+}
+
+.power-toggle.deactivate-mode .toggle-icon {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.power-toggle.deactivate-mode:hover .toggle-icon {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.power-toggle.deactivate-mode .toggle-icon svg {
+  color: #ef4444;
+}
+
+.power-toggle.deactivate-mode .status-subtext {
+  color: rgba(239, 68, 68, 0.8);
 }

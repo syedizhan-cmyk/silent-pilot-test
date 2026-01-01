@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { Settings as SettingsIcon, User, Lock, Bell, Shield, CreditCard } from 'lucide-react';
+import { createCheckoutSession, getCurrentSubscription, cancelSubscription } from '../lib/stripe';
+import { toast } from 'react-toastify';
+import { useConfirm } from '../hooks/useConfirm';
 import './Settings.css';
 
 function Settings() {
   const navigate = useNavigate();
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -32,6 +36,15 @@ function Settings() {
     analyticsTracking: true
   });
 
+  const [subscription, setSubscription] = useState({
+    plan: 'Starter',
+    status: 'active',
+    billingCycle: 'monthly',
+    amount: 0,
+    nextBillingDate: null,
+    paymentMethod: null
+  });
+
   const [passwords, setPasswords] = useState({
     currentPassword: '',
     newPassword: '',
@@ -40,6 +53,7 @@ function Settings() {
 
   useEffect(() => {
     fetchUserData();
+    fetchSubscriptionData();
   }, []);
 
   const fetchUserData = async () => {
@@ -57,6 +71,72 @@ function Settings() {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+    }
+  };
+
+  const fetchSubscriptionData = async () => {
+    try {
+      const result = await getCurrentSubscription();
+      if (result.success && result.subscription) {
+        setSubscription({
+          plan: result.subscription.plan_name || 'Starter',
+          status: result.subscription.status || 'active',
+          billingCycle: result.subscription.billing_cycle || 'monthly',
+          amount: result.subscription.amount || 0,
+          nextBillingDate: result.subscription.current_period_end,
+          paymentMethod: result.subscription.payment_method
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
+
+  const handleUpgradePlan = async (planId, billingCycle) => {
+    try {
+      // Verify user is logged in first
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please log in to upgrade your plan');
+        setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+
+      const result = await createCheckoutSession(planId, billingCycle);
+      if (!result.success) {
+        if (result.error.includes('log in') || result.error.includes('Session expired')) {
+          toast.error('Please log in again to continue');
+          setTimeout(() => navigate('/login'), 2000);
+        } else {
+          toast.error(result.error || 'Failed to start checkout');
+        }
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast.error('Failed to upgrade plan');
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    const confirmed = await confirm({
+      title: 'Cancel Subscription?',
+      message: 'Are you sure you want to cancel your subscription?\n\nYou will still have access until the end of your billing period.',
+      confirmText: 'Yes, Cancel',
+      cancelText: 'Keep Subscription'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      const result = await cancelSubscription();
+      if (result.success) {
+        toast.success('Subscription cancelled successfully');
+        fetchSubscriptionData();
+      } else {
+        toast.error(result.error || 'Failed to cancel subscription');
+      }
+    } catch (error) {
+      toast.error('Failed to cancel subscription');
     }
   };
 
@@ -125,7 +205,14 @@ function Settings() {
   };
 
   const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    const confirmed = await confirm({
+      title: '⚠️ Delete Account?',
+      message: 'Are you sure you want to delete your account?\n\nThis action cannot be undone and all your data will be permanently deleted.',
+      confirmText: 'Yes, Delete Account',
+      cancelText: 'Cancel'
+    });
+    
+    if (confirmed) {
       setMessage({ type: 'error', text: 'Account deletion requires admin approval. Please contact support.' });
     }
   };
@@ -415,51 +502,126 @@ function Settings() {
               </div>
 
               <div className="billing-card">
-                <div className="plan-badge">Current Plan</div>
+                <div className="plan-badge">
+                  Current Plan: {subscription.status === 'active' ? 'Active' : 'Cancelled'}
+                </div>
                 <div className="plan-info">
-                  <h3>Pro Plan</h3>
-                  <div className="plan-price">$49<span>/month</span></div>
-                  <ul className="plan-features">
-                    <li>✓ Unlimited posts</li>
-                    <li>✓ All social platforms</li>
-                    <li>✓ AI content generation</li>
-                    <li>✓ Advanced analytics</li>
-                    <li>✓ Priority support</li>
-                  </ul>
-                  <button className="btn-secondary">Upgrade Plan</button>
+                  <h3>{subscription.plan} Plan</h3>
+                  <div className="plan-price">
+                    ${subscription.amount}
+                    <span>/{subscription.billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                  </div>
+                  {subscription.plan === 'Starter' && (
+                    <ul className="plan-features">
+                      <li>✓ 10 posts per month</li>
+                      <li>✓ 2 social media accounts</li>
+                      <li>✓ Basic AI content generation</li>
+                      <li>✓ Email support</li>
+                    </ul>
+                  )}
+                  {subscription.plan === 'Professional' && (
+                    <ul className="plan-features">
+                      <li>✓ Unlimited posts</li>
+                      <li>✓ 10 social media accounts</li>
+                      <li>✓ Advanced AI content creation</li>
+                      <li>✓ Email marketing campaigns</li>
+                      <li>✓ Analytics & insights</li>
+                      <li>✓ Priority support</li>
+                    </ul>
+                  )}
+                  {subscription.plan === 'Enterprise' && (
+                    <ul className="plan-features">
+                      <li>✓ Everything in Professional</li>
+                      <li>✓ Unlimited social accounts</li>
+                      <li>✓ White-label solution</li>
+                      <li>✓ Custom AI training</li>
+                      <li>✓ Dedicated account manager</li>
+                      <li>✓ API access</li>
+                    </ul>
+                  )}
+                  {subscription.nextBillingDate && (
+                    <p style={{ marginTop: '12px', fontSize: '14px', color: '#888' }}>
+                      Next billing: {new Date(subscription.nextBillingDate).toLocaleDateString()}
+                    </p>
+                  )}
+                  
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                    {subscription.plan === 'Starter' && (
+                      <>
+                        <button 
+                          className="btn-primary" 
+                          onClick={() => handleUpgradePlan('professional', 'monthly')}
+                        >
+                          Upgrade to Professional
+                        </button>
+                        <button 
+                          className="btn-secondary" 
+                          onClick={() => handleUpgradePlan('enterprise', 'monthly')}
+                        >
+                          Upgrade to Enterprise
+                        </button>
+                      </>
+                    )}
+                    {subscription.plan === 'Professional' && (
+                      <>
+                        <button 
+                          className="btn-primary" 
+                          onClick={() => handleUpgradePlan('enterprise', 'monthly')}
+                        >
+                          Upgrade to Enterprise
+                        </button>
+                        {subscription.status === 'active' && (
+                          <button 
+                            className="btn-secondary" 
+                            onClick={handleCancelSubscription}
+                            style={{ background: '#ef4444' }}
+                          >
+                            Cancel Subscription
+                          </button>
+                        )}
+                      </>
+                    )}
+                    {subscription.plan === 'Enterprise' && subscription.status === 'active' && (
+                      <button 
+                        className="btn-secondary" 
+                        onClick={handleCancelSubscription}
+                        style={{ background: '#ef4444' }}
+                      >
+                        Cancel Subscription
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="payment-card">
-                <h3>Payment Method</h3>
-                <div className="card-display">
-                  <span className="card-icon">💳</span>
-                  <div className="card-details">
-                    <p className="card-number">•••• •••• •••• 4242</p>
-                    <p className="card-expiry">Expires 12/25</p>
+              {subscription.paymentMethod && (
+                <div className="payment-card">
+                  <h3>Payment Method</h3>
+                  <div className="card-display">
+                    <span className="card-icon">💳</span>
+                    <div className="card-details">
+                      <p className="card-number">
+                        •••• •••• •••• {subscription.paymentMethod.last4 || '****'}
+                      </p>
+                      <p className="card-expiry">
+                        {subscription.paymentMethod.exp_month && subscription.paymentMethod.exp_year
+                          ? `Expires ${subscription.paymentMethod.exp_month}/${subscription.paymentMethod.exp_year}`
+                          : 'No expiry'}
+                      </p>
+                    </div>
+                    <button className="btn-text" onClick={() => toast.info('Contact support to update payment method')}>
+                      Update
+                    </button>
                   </div>
-                  <button className="btn-text">Update</button>
                 </div>
-              </div>
+              )}
 
               <div className="invoice-section">
                 <h3>Billing History</h3>
                 <div className="invoice-list">
-                  {[
-                    { date: 'Dec 1, 2024', desc: 'Pro Plan - Monthly', amount: '$49.00' },
-                    { date: 'Nov 1, 2024', desc: 'Pro Plan - Monthly', amount: '$49.00' }
-                  ].map((invoice, idx) => (
-                    <div key={idx} className="invoice-item">
-                      <div className="invoice-info">
-                        <p className="invoice-date">{invoice.date}</p>
-                        <p className="invoice-desc">{invoice.desc}</p>
-                      </div>
-                      <div className="invoice-actions">
-                        <span className="invoice-amount">{invoice.amount}</span>
-                        <button className="btn-text">Download</button>
-                      </div>
-                    </div>
-                  ))}
+                  <p style={{ color: '#888', fontSize: '14px', padding: '20px 0' }}>
+                    Your billing history will appear here once you have active subscriptions.
+                  </p>
                 </div>
               </div>
             </div>

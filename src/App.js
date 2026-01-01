@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ConfirmDialog from './components/ConfirmDialog';
+import { useConfirmStore } from './hooks/useConfirm';
 import './App.css';
 import './theme.css';
 import './theme-variables.css';
@@ -84,6 +88,8 @@ function LandingPage() {
 function App() {
   const initialize = useAuthStore((state) => state.initialize);
 
+  const confirmState = useConfirmStore();
+  
   useEffect(() => {
     initialize();
   }, [initialize]);
@@ -91,6 +97,27 @@ function App() {
   return (
     <Router>
       <CustomCursor />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        onClose={confirmState.close}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+      />
       <Routes>
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />

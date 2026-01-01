@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getCurrentSubscription, createPortalSession, cancelSubscription, reactivateSubscription } from '../../lib/stripe';
 import { toast } from 'react-toastify';
+import { useConfirm } from '../../hooks/useConfirm';
 import './SubscriptionCard.css';
 
 function SubscriptionCard() {
+  const { confirm } = useConfirm();
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -37,7 +39,14 @@ function SubscriptionCard() {
   };
 
   const handleCancelSubscription = async () => {
-    if (!window.confirm('Are you sure you want to cancel your subscription? You will still have access until the end of your billing period.')) {
+    const confirmed = await confirm({
+      title: 'Cancel Subscription?',
+      message: 'Are you sure you want to cancel your subscription?\n\nYou will still have access until the end of your billing period.',
+      confirmText: 'Yes, Cancel',
+      cancelText: 'Keep Subscription'
+    });
+    
+    if (!confirmed) {
       return;
     }
 

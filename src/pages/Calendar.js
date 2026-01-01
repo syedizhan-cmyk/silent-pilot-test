@@ -3,11 +3,13 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContentStore } from '../store/contentStore';
 import { useAuthStore } from '../store/authStore';
+import { useConfirm } from '../hooks/useConfirm';
 import SocialIcon from '../components/SocialIcon';
 import './Calendar.css';
 
 function Calendar() {
   const navigate = useNavigate();
+  const { confirm } = useConfirm();
   const [searchParams] = useSearchParams();
   const user = useAuthStore((state) => state.user);
   const { posts, getPosts, updatePost, deletePost, loading } = useContentStore();
@@ -111,7 +113,14 @@ function Calendar() {
   const handleDeletePost = async () => {
     if (!selectedPost) return;
     
-    if (window.confirm('Are you sure you want to delete this post?')) {
+    const confirmed = await confirm({
+      title: 'Delete Post?',
+      message: 'Are you sure you want to delete this post?\n\nThis action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    });
+    
+    if (confirmed) {
       const result = await deletePost(selectedPost.id);
       
       if (result.error) {
@@ -128,7 +137,14 @@ function Calendar() {
   const handlePostNow = async () => {
     if (!selectedPost) return;
     
-    if (window.confirm('Are you sure you want to post this now?')) {
+    const confirmed = await confirm({
+      title: 'Post Now?',
+      message: 'Are you sure you want to publish this post immediately?',
+      confirmText: 'Yes, Post Now',
+      cancelText: 'Cancel'
+    });
+    
+    if (confirmed) {
       const result = await updatePost(selectedPost.id, {
         status: 'published',
         published_at: new Date().toISOString()
@@ -391,7 +407,13 @@ function Calendar() {
                       <button 
                         className="btn-small btn-danger"
                         onClick={async () => {
-                          if (window.confirm('Are you sure you want to delete this post?')) {
+                          const confirmed = await confirm({
+                            title: 'Delete Post?',
+                            message: 'Are you sure you want to delete this post?\n\nThis action cannot be undone.',
+                            confirmText: 'Delete',
+                            cancelText: 'Cancel'
+                          });
+                          if (confirmed) {
                             const result = await deletePost(post.id);
                             if (result.error) {
                               setMessage({ type: 'error', text: result.error });

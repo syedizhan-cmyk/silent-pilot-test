@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useConfirm } from '../hooks/useConfirm';
 import { useAuthStore } from '../store/authStore';
 import { useEmailCampaignsStore } from '../store/emailCampaignsStore';
 import { useBusinessProfileStore } from '../store/businessProfileStore';
@@ -9,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import './EmailCampaigns.css';
 
 function EmailCampaigns() {
+  const { confirm } = useConfirm();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('campaigns');
   const user = useAuthStore((s) => s.user);
@@ -193,7 +196,7 @@ function EmailCampaigns() {
       }
     } catch (error) {
       console.error('Error optimizing:', error);
-      alert('Error optimizing campaign. Please try again.');
+      toast.error('Error optimizing campaign. Please try again.');
     }
   };
 
@@ -207,7 +210,7 @@ function EmailCampaigns() {
   // Create new campaign
   const handleCreateCampaign = async () => {
     if (!newCampaign.name || !newCampaign.subject) {
-      alert('Please fill in campaign name and subject');
+      toast.error('Please fill in campaign name and subject');
       return;
     }
 
@@ -217,9 +220,9 @@ function EmailCampaigns() {
     });
 
     if (result.error) {
-      alert('Error creating campaign: ' + result.error);
+      toast.error('Error creating campaign: ' + result.error);
     } else {
-      alert('✅ Campaign created successfully!');
+      toast.success('✅ Campaign created successfully!');
       setShowNewCampaignModal(false);
       setNewCampaign({
         name: '',
@@ -242,7 +245,7 @@ function EmailCampaigns() {
       ? `Send test email to ${testEmail}?` 
       : `Send this campaign to all subscribers? This cannot be undone.`;
     
-    if (!window.confirm(confirmMsg)) return;
+    const confirmed = await confirm({ title: 'Send Campaign?', message: confirmMsg, confirmText: 'Yes, Send', cancelText: 'Cancel' }); if (!confirmed) return;
 
     setSending(true);
     try {
@@ -291,7 +294,13 @@ function EmailCampaigns() {
 
   // Delete campaign
   const handleDeleteCampaign = async (campaignId) => {
-    if (!window.confirm('Are you sure you want to delete this campaign?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Campaign?',
+      message: 'Are you sure you want to delete this campaign?\n\nThis action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    });
+    if (!confirmed) return;
 
     const result = await deleteCampaign(campaignId);
     if (result.error) {

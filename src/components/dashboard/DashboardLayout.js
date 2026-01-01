@@ -27,7 +27,6 @@ import {
   User
 } from 'lucide-react';
 import './DashboardLayout.css';
-import ThemeToggle from '../ThemeToggle';
 import Logo from '../Logo';
 
 function DashboardLayout({ children }) {
@@ -129,7 +128,7 @@ function DashboardLayout({ children }) {
               className="logout-btn"
               onClick={async () => {
                 await signOut();
-                navigate('/login');
+                navigate('/');
               }}
             >
               <LogOut size={18} />
@@ -147,16 +146,12 @@ function DashboardLayout({ children }) {
             <Menu size={24} />
           </button>
           <div className="top-bar-right">
-            <ThemeToggle />
             <Link to="/dashboard/notifications" className="icon-btn" title="Notifications">
               <span className="notification-badge">3</span>
               <Bell size={20} />
             </Link>
             <Link to="/dashboard/settings" className="icon-btn" title="Settings">
               <Settings size={20} />
-            </Link>
-            <Link to="/" className="back-to-home-btn">
-              ← Back to Home
             </Link>
           </div>
         </header>

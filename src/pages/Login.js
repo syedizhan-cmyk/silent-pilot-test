@@ -105,8 +105,10 @@ function Login() {
             </div>
 
             <button type="submit" className="auth-button" disabled={loading}>
-              {loading && <span className="spinner"></span>}
-              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+              <span>
+                {loading && <span className="spinner"></span>}
+                {loading ? 'Signing in...' : 'Sign In'}
+              </span>
             </button>
           </form>
 

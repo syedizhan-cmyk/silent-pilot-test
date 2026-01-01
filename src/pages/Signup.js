@@ -160,14 +160,10 @@ function Signup() {
             </div>
 
             <button type="submit" className="auth-button" disabled={loading}>
-              {loading ? (
-                <>
-                  <span className="spinner"></span>
-                  Creating account...
-                </>
-              ) : (
-                'Create Account'
-              )}
+              <span>
+                {loading && <span className="spinner"></span>}
+                {loading ? 'Creating account...' : 'Create Account'}
+              </span>
             </button>
           </form>
 

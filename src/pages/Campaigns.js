@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Target } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
+import { useConfirm } from '../hooks/useConfirm';
+import { toast } from 'react-toastify';
 import './Campaigns.css';
 
 function Campaigns() {
+  const { confirm } = useConfirm();
   const user = useAuthStore((state) => state.user);
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +84,7 @@ function Campaigns() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this campaign?')) {
+    const confirmed = await confirm({      title: 'Delete Campaign?',      message: 'Are you sure you want to delete this campaign?\n\nThis action cannot be undone.',      confirmText: 'Delete',      cancelText: 'Cancel'    });    if (confirmed) {
       try {
         const { error } = await supabase
           .from('campaigns')
