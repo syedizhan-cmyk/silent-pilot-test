@@ -58,11 +58,15 @@
   text-align: center;
   margin: 0 auto;
   animation: fadeInUp 1s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 20px;
   background: rgba(88, 101, 242, 0.1);
@@ -72,6 +76,13 @@
   font-weight: 500;
   margin-bottom: 24px;
   animation: pulse 2s ease-in-out infinite;
+  position: static;
+  z-index: auto;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  float: none;
+  clear: both;
 }
 
 .badge-icon {
@@ -84,6 +95,10 @@
   line-height: 1.2;
   margin-bottom: 24px;
   letter-spacing: -2px;
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
 }
 
 .gradient-text {
@@ -595,11 +610,9 @@
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
-    transform: scale(1);
   }
   50% {
     opacity: 0.7;
-    transform: scale(1.05);
   }
 }
 
